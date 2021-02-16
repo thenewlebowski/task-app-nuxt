@@ -1,7 +1,7 @@
 module.exports = {
     apps: [
         {
-            name: 'GOGrello',
+            name: 'gogrello',
             exec_mode: 'cluster',
             instances: 'max', // Or a number of instances
             script: './node_modules/nuxt/bin/nuxt.js',
