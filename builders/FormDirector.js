@@ -9,36 +9,36 @@ import FormInput from '@@/components/form/FormInput.vue'
 import FormTextarea from '@@/components/form/FormTextarea.vue'
 
 export default class FormDirector {
-    constructor(builder) {
-        this.builder = builder
-    }
+  constructor(builder) {
+    this.builder = builder
+  }
 
-    makeUserForm() {
-        return this.builder
-            .withProvider(UserProvider)
-            .addField({
-                component: FormInput,
-                label: 'Name',
-                name: 'name',
-                options: {
-                    attrs: {
-                        placeholder: 'Your name'
-                    }
-                },
-                validation: {
-                    required
-                }
-            })
-            .addField({
-                component: FormTextarea,
-                label: 'Bio',
-                name: 'bio',
-                options: {
-                    attrs: {
-                        placeholder: 'About you'
-                    }
-                }
-            })
-            .build()
-    }
+  makeUserForm() {
+    return this.builder
+      .withProvider(UserProvider)
+      .addField({
+        component: FormInput,
+        label: 'Name',
+        name: 'name',
+        options: {
+          attrs: {
+            placeholder: 'Your name'
+          }
+        },
+        validation: {
+          required
+        }
+      })
+      .addField({
+        component: FormTextarea,
+        label: 'Bio',
+        name: 'bio',
+        options: {
+          attrs: {
+            placeholder: 'About you'
+          }
+        }
+      })
+      .build()
+  }
 }
