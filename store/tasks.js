@@ -148,7 +148,7 @@ export const actions = {
     })
   },
   fetchOthersTasks({ commit }) {
-    return axios.get('api/tasks/others').then((response) => {
+    return axios.get('api/tasks/assigned').then((response) => {
       commit('SET_OTHERS_TASKS', response.data)
     })
   },

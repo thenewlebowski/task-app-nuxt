@@ -59,9 +59,9 @@ export default {
         route: '/unassigned'
       },
       {
-        text: "Others'",
+        text: 'Assigned',
         icon: 'mdi-magnify-plus',
-        route: '/others'
+        route: '/assigned'
       },
       {
         text: 'Archived',
