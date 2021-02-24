@@ -1,33 +1,32 @@
 const jwt = require('jsonwebtoken')
 
 function getTokenFromHeaders(req) {
-    const token =
-        req.body.token || req.query.token || req.headers['master-token']
+  const token = req.body.token || req.query.token || req.headers['master-token']
 
-    return token
+  return token
 }
 
 function validateToken(req, res, next) {
-    const token = getTokenFromHeaders(req)
+  const token = getTokenFromHeaders(req)
 
-    if (token) {
-        jwt.verify(token, 'prettydumbsecret', (err, decoded) => {
-            if (err) {
-                return res.json({
-                    success: false,
-                    message: 'Failed to authenticate token'
-                })
-            } else {
-                req.decoded = decoded
-                next()
-            }
+  if (token) {
+    jwt.verify(token, 'prettydumbsecret', (err, decoded) => {
+      if (err) {
+        return res.json({
+          success: false,
+          message: 'Failed to authenticate token'
         })
-    } else {
-        return res.status(403).send({
-            success: false,
-            message: 'No token provided'
-        })
-    }
+      } else {
+        req.decoded = decoded
+        next()
+      }
+    })
+  } else {
+    return res.status(403).send({
+      success: false,
+      message: 'No token provided'
+    })
+  }
 }
 
 module.exports = validateToken
