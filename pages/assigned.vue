@@ -1,7 +1,7 @@
 <template>
   <TasksList
     :tasks="$store.getters['tasks/getOthersTasks']"
-    :title="'Others\' Tasks'"
+    :title="'Assigned Tasks'"
   />
 </template>
 
@@ -14,7 +14,7 @@ export default {
     TasksList
   },
   head: () => ({
-    title: "Others'"
+    title: 'Assigned'
   }),
   async created() {
     await this.$store.dispatch('tasks/fetchOthersTasks')
