@@ -1,21 +1,26 @@
 <template>
   <v-app>
-    <v-navigation-drawer v-model="drawer" app clipped>
-      <v-list subheader>
-        <v-subheader inset>Tasks</v-subheader>
-        <v-list-item
-          v-for="(item, i) in items"
-          :key="i"
-          @click="$router.push(item.route)"
-        >
-          <v-list-item-action>
-            <v-icon>{{ item.icon }}</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>{{ item.text }}</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
+    <v-navigation-drawer v-model="drawer" clipped app>
+      <v-layout justify-space-between column class="fill-height">
+        <v-list subheader>
+          <v-subheader inset>Tasks</v-subheader>
+          <v-list-item
+            v-for="(item, i) in items"
+            :key="i"
+            @click="$router.push(item.route)"
+          >
+            <v-list-item-action>
+              <v-icon>{{ item.icon }}</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title>{{ item.text }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+        <v-list footer>
+          <ThemeSwitcher class="float-end" />
+        </v-list>
+      </v-layout>
     </v-navigation-drawer>
 
     <v-app-bar app clipped-left>
@@ -25,7 +30,6 @@
       <AvatarMenu v-if="$auth.loggedIn" />
     </v-app-bar>
     <v-main>
-      <NoEmailPrompt />
       <v-container fluid>
         <nuxt />
       </v-container>
@@ -37,16 +41,18 @@
 </template>
 
 <script>
+import ThemeSwitcher from '@/components/ThemeSwitcher'
 import NoEmailPrompt from '@/components/NoEmailPrompt'
 import AvatarMenu from '../components/AvatarMenu'
 export default {
   components: {
+    ThemeSwitcher,
     NoEmailPrompt,
     AvatarMenu
   },
   data: () => ({
     drawer: null,
-    title: 'Gogrello',
+    title: 'gogrello',
     items: [
       {
         text: 'Mine',
@@ -67,11 +73,6 @@ export default {
         text: 'Archived',
         icon: 'mdi-archive',
         route: '/archived'
-      },
-      {
-        text: 'Settings',
-        icon: 'mdi-settings',
-        route: '/settings'
       }
     ]
   })
