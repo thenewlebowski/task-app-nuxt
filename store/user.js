@@ -17,11 +17,9 @@ export const mutations = {
     const key = {}
 
     users.forEach((user) => {
-      key[user._id] = `${user.firstName} ${user.lastName}`
-    })
-
-    users.forEach((user) => {
-      key[`${user.firstName} ${user.lastName}`] = user._id
+      if (user.firstName && user.lastName) {
+        key[`${user.firstName} ${user.lastName}`] = user._id
+      } else key[`${user.username}`] = user._id
     })
 
     state.usersNameAndIdKey = key
