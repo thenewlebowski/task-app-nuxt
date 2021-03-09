@@ -1,12 +1,21 @@
 <template>
   <form>
     <v-text-field
-      v-model="name"
-      :error-messages="nameErrors"
+      v-model="firstName"
+      :error-messages="firstNameErrors"
       :counter="10"
-      @input="$v.name.$touch()"
-      @blur="$v.name.$touch()"
-      label="Name"
+      @input="$v.firstName.$touch()"
+      @blur="$v.firstName.$touch()"
+      label="First Name"
+      required
+    ></v-text-field>
+    <v-text-field
+      v-model="lastName"
+      :error-messages="lastNameErrors"
+      :counter="10"
+      @input="$v.lastName.$touch()"
+      @blur="$v.lastName.$touch()"
+      label="Last Name"
       required
     ></v-text-field>
     <v-text-field
@@ -17,25 +26,6 @@
       label="E-mail"
       required
     ></v-text-field>
-    <v-select
-      v-model="select"
-      :items="items"
-      :error-messages="selectErrors"
-      @change="$v.select.$touch()"
-      @blur="$v.select.$touch()"
-      label="Item"
-      required
-    ></v-select>
-    <v-checkbox
-      v-model="checkbox"
-      :error-messages="checkboxErrors"
-      @change="$v.checkbox.$touch()"
-      @blur="$v.checkbox.$touch()"
-      label="Do you agree?"
-      required
-    ></v-checkbox>
-    <ThemeSwitcher />
-
     <v-btn @click="submit" class="mr-4">submit</v-btn>
     <v-btn @click="clear">clear</v-btn>
   </form>
@@ -44,53 +34,38 @@
 <script>
 import { validationMixin } from 'vuelidate'
 import { required, maxLength, email } from 'vuelidate/lib/validators'
-import ThemeSwitcher from '../components/ThemeSwitcher'
 
 export default {
   name: 'SettingsPage',
-  components: {
-    ThemeSwitcher
-  },
   mixins: [validationMixin],
   validations: {
-    name: { required, maxLength: maxLength(10) },
-    email: { required, email },
-    select: { required },
-    checkbox: {
-      checked(val) {
-        return val
-      }
-    }
+    firstName: { required, maxLength: maxLength(10) },
+    lastName: { required, maxLength: maxLength(10) },
+    email: { required, email }
   },
   data: () => ({
-    name: '',
-    email: '',
-    select: null,
-    items: ['Item 1', 'Item 2', 'Item 3', 'Item 4'],
-    checkbox: false
+    lastName: '',
+    firstName: '',
+    email: ''
   }),
   head: () => ({
     title: 'Settings'
   }),
   computed: {
-    checkboxErrors() {
+    firstNameErrors() {
       const errors = []
-      if (!this.$v.checkbox.$dirty) return errors
-      !this.$v.checkbox.checked && errors.push('You must agree to continue!')
-      return errors
-    },
-    selectErrors() {
-      const errors = []
-      if (!this.$v.select.$dirty) return errors
-      !this.$v.select.required && errors.push('Item is required')
-      return errors
-    },
-    nameErrors() {
-      const errors = []
-      if (!this.$v.name.$dirty) return errors
-      !this.$v.name.maxLength &&
+      if (!this.$v.lastName.$dirty) return errors
+      !this.$v.lastName.maxLength &&
         errors.push('Name must be at most 10 characters long')
-      !this.$v.name.required && errors.push('Name is required.')
+      !this.$v.lastName.required && errors.push('Name is required.')
+      return errors
+    },
+    lastNameErrors() {
+      const errors = []
+      if (!this.$v.firstName.$dirty) return errors
+      !this.$v.firstName.maxLength &&
+        errors.push('Name must be at most 10 characters long')
+      !this.$v.firstName.required && errors.push('Name is required.')
       return errors
     },
     emailErrors() {
@@ -104,6 +79,22 @@ export default {
   methods: {
     submit() {
       this.$v.$touch()
+      if (this.$v.$error) return this.$v.$errors
+      const payload = {
+        firstName: this.$v.firstName.$model,
+        lastName: this.$v.lastName.$model,
+        email: this.$v.email.$model
+      }
+
+      this.$store
+        .dispatch('user/update', payload)
+        .then((res) => {
+          if (res.status !== 200) throw new Error(res)
+          this.showUpdateSuccess()
+        })
+        .catch(() => {
+          this.showUpdateError()
+        })
     },
     clear() {
       this.$v.$reset()
@@ -111,6 +102,19 @@ export default {
       this.email = ''
       this.select = null
       this.checkbox = false
+    }
+  },
+  notifications: {
+    showUpdateError: {
+      title: 'Failed',
+      message:
+        'Failed to update your profile please try again later or contact system admin',
+      type: 'error'
+    },
+    showUpdateSuccess: {
+      title: 'Success',
+      message: 'Succesfully updated profile',
+      type: 'success'
     }
   }
 }

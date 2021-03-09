@@ -26,6 +26,9 @@ export const mutations = {
   },
   ADD_USER(state, user) {
     state.user = user
+  },
+  UPDATE_USER(state, user) {
+    state.user = user
   }
 }
 
@@ -45,6 +48,18 @@ export const actions = {
       })
       .catch((e) => {
         return e.response
+      })
+  },
+  // update backend and app store
+  update({ commit }, data) {
+    return this.$axios
+      .put('/api/users', data)
+      .then((response) => {
+        commit('UPDATE_USER', response.data)
+        return response
+      })
+      .catch((e) => {
+        return e
       })
   },
   fetchUsers({ commit }) {
