@@ -73,6 +73,11 @@ export default {
         text: 'Archived',
         icon: 'mdi-archive',
         route: '/archived'
+      },
+      {
+        text: 'Settings',
+        icon: 'mdi-settings',
+        route: '/settings'
       }
     ]
   })
