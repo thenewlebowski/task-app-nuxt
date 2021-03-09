@@ -52,6 +52,10 @@ router
   .get('/unassigned', (req, res) => {
     Task.find({ assignee: null, archived: null })
       .then((tasks) => {
+        //  replace title with substring of desc if no title exists
+        tasks.forEach((task) => {
+          task.title = task.title || task.description.substring(0, 100)
+        })
         res.status(202).json(tasks)
       })
       .catch((err) => {
