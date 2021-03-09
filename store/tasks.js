@@ -23,7 +23,7 @@ export const mutations = {
         columnsObj[columnName] = {
           key: columnKey,
           title: columnName,
-          tasks: []
+          tasks: [task]
         }
         columnKey++
       }
