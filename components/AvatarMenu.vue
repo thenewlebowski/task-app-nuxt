@@ -29,7 +29,7 @@ export default {
         return (this.user.firstName[0] + this.user.lastName[0]).toUpperCase()
       } else if (this.user.username) {
         const username = this.user.username
-        return (username.slice(-1) + username[0]).toUpperCase()
+        return (username[0] + username.slice(-1)).toUpperCase()
       }
 
       return 'N/A'

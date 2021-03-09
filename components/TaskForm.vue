@@ -88,7 +88,9 @@
             <v-col cols="12" sm="6">
               <v-select
                 v-model="assignee"
-                :items="Object.values(nameKey).filter((ele) => ele[0] !== '5')"
+                :items="
+                  Object.keys(nameKey).filter((ele, key) => ele[0] !== '5')
+                "
                 :error-messages="assigneeErrors"
                 @change="$v.assignee.$touch()"
                 @blur="$v.assignee.$touch()"
@@ -131,8 +133,8 @@ export default {
     }
   },
   data: () => ({
-    title: 'dfdfdf',
-    description: 'dfdfdf',
+    title: '',
+    description: '',
     priority: 'Lowest',
     type: 'Task',
     site: 'PlumbersStock',
@@ -201,7 +203,6 @@ export default {
       this.dialog = false
     },
     handleAddTask() {
-      const route = this.$router.currentRoute.name
       const task = {
         title: this.title,
         description: this.description,
@@ -211,15 +212,14 @@ export default {
         index: null,
         site: this.site,
         points: this.points,
-        assignee:
-          this.nameKey[this.assignee] || this.nameKey['Unassigned Tasks']
+        assignee: this.nameKey[this.assignee] || null,
+        reporter: this.$auth.user._id
       }
-
-      if (route === 'index') {
-        task.reporter = this.$auth.user._id
-      } else if (route === 'browse') {
-        task.reporter = null
-      }
+      // if (route === 'index') {
+      //   task.reporter = this.$auth.user._id
+      // } else if (route === 'browse') {
+      //   task.reporter = null
+      // }
 
       this.$store.dispatch('tasks/addTask', task)
       this.dialog = false
