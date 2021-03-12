@@ -44,6 +44,7 @@ const TaskSchema = mongoose.Schema(
         'CraftDirect',
         'MonkeyWrench',
         'PlumbersStock',
+        'Typhoeus',
         'Rayie',
         'SWPlumbing',
         'SupplyExchange',

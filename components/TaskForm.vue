@@ -88,9 +88,7 @@
             <v-col cols="12" sm="6">
               <v-select
                 v-model="assignee"
-                :items="
-                  Object.keys(nameKey).filter((ele, key) => ele[0] !== '5')
-                "
+                :items="Object.values(nameKey)"
                 :error-messages="assigneeErrors"
                 @change="$v.assignee.$touch()"
                 @blur="$v.assignee.$touch()"
@@ -153,6 +151,7 @@ export default {
       'CraftDirect',
       'MonkeyWrench',
       'PlumbersStock',
+      'Typhoeus',
       'Rayie',
       'SWPlumbing',
       'SupplyExchange',
@@ -212,7 +211,9 @@ export default {
         index: null,
         site: this.site,
         points: this.points,
-        assignee: this.nameKey[this.assignee] || null,
+        assignee: Object.keys(this.nameKey).filter(
+          (key) => this.nameKey[key] === this.assignee
+        )[0],
         reporter: this.$auth.user._id
       }
       // if (route === 'index') {
@@ -235,8 +236,9 @@ export default {
           index: null,
           site: this.site,
           points: this.points,
-          assignee:
-            this.nameKey[this.assignee] || this.nameKey['Unassigned Task']
+          assignee: Object.keys(this.nameKey).filter(
+            (key) => this.nameKey[key] === this.assignee
+          )[0]
         },
         taskId: this.taskToEdit._id
       }
