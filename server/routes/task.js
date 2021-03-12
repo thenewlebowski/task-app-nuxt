@@ -37,12 +37,24 @@ const SITE_MANAGERS = {
   MowRo: process.env.PSTOCK_MANAGER
 }
 
+/**
+ * goes through tasks and sets title to substring of desc
+ * if no title is already set
+ * @param {array} tasks
+ */
+const reassignTitle = (tasks) => {
+  tasks.forEach((task) => {
+    task.title = task.title || task.description.substring(0, 50)
+  })
+}
+
 router
   .use('/tasks', router)
   .get('/', (req, res) => {
     const { _id } = req.session.user
     Task.find({ assignee: _id, archived: null })
       .then((tasks) => {
+        reassignTitle(tasks)
         res.status(200).json(tasks)
       })
       .catch((err) => {
@@ -53,9 +65,7 @@ router
     Task.find({ assignee: null, archived: null })
       .then((tasks) => {
         //  replace title with substring of desc if no title exists
-        tasks.forEach((task) => {
-          task.title = task.title || task.description.substring(0, 100)
-        })
+        reassignTitle(tasks)
         res.status(202).json(tasks)
       })
       .catch((err) => {
@@ -71,6 +81,7 @@ router
       archived: null
     })
       .then((tasks) => {
+        reassignTitle(tasks)
         res.status(202).json(tasks)
       })
       .catch((err) => {
@@ -80,6 +91,7 @@ router
   .get('/archived', (req, res) => {
     Task.find({ archived: true })
       .then((tasks) => {
+        reassignTitle(tasks)
         res.status(202).json(tasks)
       })
       .catch((err) => {
