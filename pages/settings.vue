@@ -52,20 +52,20 @@ export default {
     title: 'Settings'
   }),
   computed: {
-    firstNameErrors() {
+    lastNameErrors() {
       const errors = []
       if (!this.$v.lastName.$dirty) return errors
       !this.$v.lastName.maxLength &&
         errors.push('Name must be at most 10 characters long')
-      !this.$v.lastName.required && errors.push('Name is required.')
+      !this.$v.lastName.required && errors.push('Last name is required.')
       return errors
     },
-    lastNameErrors() {
+    firstNameErrors() {
       const errors = []
       if (!this.$v.firstName.$dirty) return errors
       !this.$v.firstName.maxLength &&
         errors.push('Name must be at most 10 characters long')
-      !this.$v.firstName.required && errors.push('Name is required.')
+      !this.$v.firstName.required && errors.push('First Name is required.')
       return errors
     },
     emailErrors() {
@@ -76,9 +76,15 @@ export default {
       return errors
     }
   },
+  created() {
+    this.firstName = this.$store.$auth.$state.user.firstName || ''
+    this.lastName = this.$store.$auth.$state.user.lastName || ''
+    this.email = this.$store.$auth.$state.user.email || ''
+  },
   methods: {
     submit() {
       this.$v.$touch()
+
       if (this.$v.$error) return this.$v.$errors
       const payload = {
         firstName: this.$v.firstName.$model,
@@ -98,10 +104,9 @@ export default {
     },
     clear() {
       this.$v.$reset()
-      this.name = ''
+      this.firstName = ''
+      this.lastName = ''
       this.email = ''
-      this.select = null
-      this.checkbox = false
     }
   },
   notifications: {
