@@ -1,14 +1,14 @@
 <template>
   <v-card width="360" class="mx-1">
     <v-app-bar color="blue-grey">
-      <v-btn icon>
+      <!-- <v-btn icon>
         <v-icon>mdi-settings</v-icon>
-      </v-btn>
+      </v-btn> -->
       <v-toolbar-title :column="column" v-text="column.title" />
       <div class="flex-grow-1"></div>
-      <v-btn icon>
+      <!-- <v-btn icon>
         <v-icon>mdi-magnify</v-icon>
-      </v-btn>
+      </v-btn> -->
     </v-app-bar>
     <v-container class="pa-2" fluid>
       <v-row>
@@ -65,10 +65,12 @@ export default {
   computed: {
     dragOptions() {
       return {
+        delay: 200,
         animation: 200,
         group: 'description',
         disabled: false,
-        ghostClass: 'ghost'
+        ghostClass: 'ghost',
+        delayOnTouchOnly: true
       }
     }
   },
