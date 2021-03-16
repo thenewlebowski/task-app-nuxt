@@ -30,6 +30,7 @@
       <AvatarMenu v-if="$auth.loggedIn" />
     </v-app-bar>
     <v-main>
+      <NoEmailPrompt />
       <v-container fluid>
         <nuxt />
       </v-container>

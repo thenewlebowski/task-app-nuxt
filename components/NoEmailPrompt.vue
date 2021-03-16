@@ -30,7 +30,11 @@
           <v-btn @click="dialog = false" color="blue darken-1" text>
             Close
           </v-btn>
-          <v-btn @click="dialog = false" color="blue darken-1" text>
+          <v-btn
+            @click=";(dialog = false), submit()"
+            color="blue darken-1"
+            text
+          >
             Save
           </v-btn>
         </v-card-actions>
@@ -56,6 +60,35 @@ export default {
   created() {
     if (this.loggedIn && !this.user.email) {
       this.dialog = true
+    }
+  },
+  methods: {
+    submit() {
+      const payload = {
+        email: this.email
+      }
+      this.$store
+        .dispatch('user/update', payload)
+        .then((res) => {
+          if (res.status !== 200) throw new Error(res)
+          this.showUpdateSuccess()
+        })
+        .catch(() => {
+          this.showUpdateError()
+        })
+    }
+  },
+  notifications: {
+    showUpdateError: {
+      title: 'Failed',
+      message:
+        'Failed to update your profile please try again later or contact system admin',
+      type: 'error'
+    },
+    showUpdateSuccess: {
+      title: 'Success',
+      message: 'Succesfully updated profile',
+      type: 'success'
     }
   }
 }
