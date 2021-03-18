@@ -8,7 +8,8 @@ const TaskSchema = mongoose.Schema(
       required: true
     },
     description: {
-      type: String
+      type: String,
+      unique: true
     },
     priority: {
       type: String,
@@ -18,7 +19,7 @@ const TaskSchema = mongoose.Schema(
     type: {
       type: String,
       required: true,
-      enum: ['Task', 'Bug', 'Story', 'Epic', 'Theme']
+      enum: ['Task', 'Problem', 'General', 'Styling']
     },
     points: {
       type: Number,

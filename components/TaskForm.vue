@@ -140,7 +140,7 @@ export default {
     status: 'To Do',
     assignee: 'Unassigned Tasks',
     priorityLevels: ['Lowest', 'Low', 'Medium', 'High', 'Highest'],
-    types: ['Task', 'Bug', 'Story', 'Epic', 'Theme'],
+    types: ['Task', 'Problem', 'General', 'Styling'],
     statusTypes: ['To Do', 'In Progress', 'Done', 'Backlog'],
     sites: [
       'Adams&Co',
