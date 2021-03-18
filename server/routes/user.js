@@ -29,6 +29,8 @@ router
       { new: true },
       function(err, user) {
         if (err) return next(err)
+        // set session to updated user
+        req.session.user = user
         res.json(user)
       }
     )
