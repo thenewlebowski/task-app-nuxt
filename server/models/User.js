@@ -36,6 +36,12 @@ const UserSchema = mongoose.Schema(
     location: {
       type: String
     },
+    departments: [
+      {
+        type: ObjectId,
+        ref: 'Department'
+      }
+    ],
     board: [
       // add this now or worry about it later when we want to add more boards?
       {
