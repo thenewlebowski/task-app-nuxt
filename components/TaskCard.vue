@@ -11,7 +11,7 @@
     </v-card>
 
     <v-dialog v-model="taskView" max-width="600px">
-      <v-card @click="taskView = true" outlined>
+      <v-card>
         <v-list-item three-line>
           <v-list-item-content>
             <div>
@@ -19,11 +19,11 @@
               <TypeChip :type="task.type" />
               <PriorityChip :priority="task.priority" />
             </div>
-            <v-list-item-title
-              v-text="task.title"
-              class="headline mb-1 mt-3 no-wrap"
-            />
-            <v-list-item-subtitle v-text="task.description" class="mb-4" />
+            <v-card-title>
+              {{ task.title }}
+            </v-card-title>
+
+            <v-card-text v-text="task.description" class="mb-4" />
             <div>
               <PointsChip :points="task.points" />
               <ReporterChip :reporter="task.reporter" />
