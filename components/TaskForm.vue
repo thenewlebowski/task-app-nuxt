@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="dialog" persistent max-width="600px">
+  <v-dialog v-model="dialog" outlined persistent max-width="75%">
     <template v-slot:activator="{ on }">
       <slot name="button">
         <v-btn v-on="on" outlined text>{{
@@ -13,103 +13,103 @@
           !taskToEdit ? 'Add New Task' : 'Edit Task'
         }}</span>
       </v-card-title>
-      <v-card-text>
-        <v-container>
-          <v-row>
-            <v-col cols="12">
-              <v-text-field
-                v-model="title"
-                :error-messages="titleErrors"
-                :counter="70"
-                @blur="$v.title.$touch()"
-                label="Title*"
-                required
-              />
-            </v-col>
-            <v-col cols="12">
-              <v-textarea
-                v-model="description"
-                :error-messages="descriptionErrors"
-                @blur="$v.description.$touch()"
-                label="Description"
-                height="100"
-              />
-            </v-col>
-            <v-col cols="12" sm="6">
-              <v-select
-                v-model="priority"
-                :items="priorityLevels"
-                :error-messages="priorityErrors"
-                @change="$v.priority.$touch()"
-                @blur="$v.priority.$touch()"
-                label="Priority*"
-                required
-              />
-            </v-col>
-            <v-col cols="12" sm="6">
-              <v-select
-                v-model="type"
-                :items="types"
-                :error-messages="typeErrors"
-                @change="$v.type.$touch()"
-                @blur="$v.type.$touch()"
-                label="Type*"
-                required
-              />
-            </v-col>
-            <v-col cols="12" sm="6">
-              <v-select
-                v-model="site"
-                :items="sites"
-                :error-messages="siteErrors"
-                @change="$v.site.$touch()"
-                @blur="$v.site.$touch()"
-                label="Site*"
-                required
-              />
-            </v-col>
-            <v-col cols="12" sm="6">
-              <v-slider
-                v-model="points"
-                :error-messages="pointsErrors"
-                @change="$v.points.$touch()"
-                @blur="$v.points.$touch()"
-                class="mt-4"
-                max="100"
-                min="10"
-                step="10"
-                hide-details
-                thumb-label="always"
-                label="Points*"
-                required
-              >
-              </v-slider>
-            </v-col>
-            <v-col cols="12" sm="6">
-              <v-select
-                v-model="assignee"
-                :items="Object.values(nameKey)"
-                :error-messages="assigneeErrors"
-                @change="$v.assignee.$touch()"
-                @blur="$v.assignee.$touch()"
-                label="Assignee"
-              />
-            </v-col>
-            <v-col cols="12" sm="6">
-              <v-select
-                v-model="status"
-                :items="statusTypes"
-                :error-messages="statusErrors"
-                @change="$v.status.$touch()"
-                @blur="$v.status.$touch()"
-                label="Status*"
-                required
-              />
-            </v-col>
-          </v-row>
-        </v-container>
-        <small>*indicates required field</small>
-      </v-card-text>
+      <v-container>
+        <v-row>
+          <v-col cols="12">
+            <v-text-field
+              v-model="title"
+              :error-messages="titleErrors"
+              :counter="70"
+              @blur="$v.title.$touch()"
+              label="Title*"
+              required
+            />
+          </v-col>
+          <v-col cols="12" sm="6">
+            <v-select
+              v-model="priority"
+              :items="priorityLevels"
+              :error-messages="priorityErrors"
+              @change="$v.priority.$touch()"
+              @blur="$v.priority.$touch()"
+              label="Priority*"
+              required
+            />
+          </v-col>
+
+          <v-col cols="12" sm="6">
+            <v-select
+              v-model="type"
+              :items="types"
+              :error-messages="typeErrors"
+              @change="$v.type.$touch()"
+              @blur="$v.type.$touch()"
+              label="Type*"
+              required
+            />
+          </v-col>
+
+          <v-col cols="12">
+            <v-textarea
+              @blur="$v.description.$touch()"
+              :error-messages="descriptionErrors"
+              v-model="description"
+              label="Description"
+              auto-grow
+            />
+          </v-col>
+
+          <v-col cols="12" sm="6">
+            <v-select
+              v-model="site"
+              :items="sites"
+              :error-messages="siteErrors"
+              @change="$v.site.$touch()"
+              @blur="$v.site.$touch()"
+              label="Site*"
+              required
+            />
+          </v-col>
+          <v-col cols="12" sm="6">
+            <v-slider
+              v-model="points"
+              :error-messages="pointsErrors"
+              @change="$v.points.$touch()"
+              @blur="$v.points.$touch()"
+              class="mt-4"
+              max="100"
+              min="10"
+              step="10"
+              hide-details
+              thumb-label="always"
+              label="Points*"
+              required
+            >
+            </v-slider>
+          </v-col>
+          <v-col cols="12" sm="6">
+            <v-select
+              v-model="assignee"
+              :items="Object.values(nameKey)"
+              :error-messages="assigneeErrors"
+              @change="$v.assignee.$touch()"
+              @blur="$v.assignee.$touch()"
+              label="Assignee"
+            />
+          </v-col>
+          <v-col cols="12" sm="6">
+            <v-select
+              v-model="status"
+              :items="statusTypes"
+              :error-messages="statusErrors"
+              @change="$v.status.$touch()"
+              @blur="$v.status.$touch()"
+              label="Status*"
+              required
+            />
+          </v-col>
+        </v-row>
+      </v-container>
       <v-card-actions>
         <div class="flex-grow-1"></div>
         <v-btn @click="clear" color="blue darken-1" text>Cancel</v-btn>
@@ -191,7 +191,8 @@ export default {
   methods: {
     handleSubmit() {
       this.$v.$touch()
-      // if (this.$v.$error) return
+      console.log(this.$v.$error)
+      if (this.$v.$error) return
       // console.log('errors', this.$v)
       if (this.taskToEdit) {
         this.handleEditTask()
