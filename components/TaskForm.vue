@@ -21,6 +21,7 @@
               :error-messages="titleErrors"
               :counter="70"
               @blur="$v.title.$touch()"
+              @change="$v.title.$touch()"
               label="Title*"
               required
             />
@@ -52,6 +53,7 @@
           <v-col cols="12">
             <v-textarea
               @blur="$v.description.$touch()"
+              @change="$v.description.$touch()"
               :error-messages="descriptionErrors"
               v-model="description"
               label="Description"
@@ -191,8 +193,8 @@ export default {
   methods: {
     handleSubmit() {
       this.$v.$touch()
-      console.log(this.$v.$error)
-      if (this.$v.$error) return
+
+      // if (this.$v.$error) return
       // console.log('errors', this.$v)
       if (this.taskToEdit) {
         this.handleEditTask()
