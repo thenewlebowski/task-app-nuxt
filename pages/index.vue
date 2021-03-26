@@ -1,5 +1,5 @@
 <template>
-  <div class="overflow-x-auto">
+  <div>
     <Board />
   </div>
 </template>

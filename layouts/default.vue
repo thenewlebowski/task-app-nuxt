@@ -31,7 +31,7 @@
     </v-app-bar>
     <v-main>
       <NoEmailPrompt />
-      <v-container fluid>
+      <v-container fluid class="overflow-auto">
         <nuxt />
       </v-container>
     </v-main>
@@ -94,5 +94,15 @@ ol,
 ul,
 li {
   list-style: none;
+}
+html {
+  overflow-y: auto !important;
+}
+</style>
+<style scoped>
+.container {
+  position: absolute;
+  bottom: 0;
+  top: 0;
 }
 </style>
