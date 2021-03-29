@@ -6,6 +6,10 @@
       </v-btn> -->
       <v-toolbar-title :column="column" v-text="column.title" />
       <div class="flex-grow-1"></div>
+      <div
+        v-bind:style="{ backgroundColor: column.color }"
+        class="board-color"
+      ></div>
       <!-- <v-btn icon>
         <v-icon>mdi-magnify</v-icon>
       </v-btn> -->
@@ -13,24 +17,31 @@
     <v-container class="pa-2" fluid>
       <v-row>
         <v-col>
-          <draggable
-            v-model="columnCopy.tasks"
-            v-bind="dragOptions"
-            @start="drag = true"
-            @end="drag = false"
-            @change="(evt) => handleMoveTask(evt, columnCopy.title)"
-            class="list-group pl-0"
-            group="tasks"
-            tag="ul"
-          >
-            <li
-              v-for="task in columnCopy.tasks"
-              :key="task.id"
-              class="list-group-item"
+          <div v-if="column.title !== 'Add Board'">
+            <draggable
+              v-model="columnCopy.tasks"
+              v-bind="dragOptions"
+              @start="drag = true"
+              @end="drag = false"
+              @change="(evt) => handleMoveTask(evt, columnCopy.title)"
+              class="list-group pl-0"
+              group="tasks"
+              tag="ul"
             >
-              <TaskCard :task="task" />
+              <li
+                v-for="task in columnCopy.tasks"
+                :key="task.id"
+                class="list-group-item"
+              >
+                <TaskCard :task="task" />
+              </li>
+            </draggable>
+          </div>
+          <div v-else>
+            <li class="add-board">
+              <BoardForm />
             </li>
-          </draggable>
+          </div>
         </v-col>
       </v-row>
       <TaskForm />
@@ -40,12 +51,14 @@
 
 <script>
 import draggable from 'vuedraggable'
+import BoardForm from './board/BoardForm'
 import TaskCard from './TaskCard'
 import TaskForm from './TaskForm'
 
 export default {
   components: {
     draggable,
+    BoardForm,
     TaskForm,
     TaskCard
   },
@@ -70,6 +83,9 @@ export default {
         group: 'description',
         disabled: false,
         ghostClass: 'ghost',
+        scrollSensitivity: 200,
+        scrollSpeed: 25,
+        forceFallback: true,
         delayOnTouchOnly: true
       }
     }
@@ -120,5 +136,19 @@ export default {
 }
 .list-group-item i {
   cursor: pointer;
+}
+.add-board {
+  cursor: pointer;
+  height: 100px;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+.board-color {
+  float: right;
+  border-radius: 100%;
+  width: 48px;
+  height: 48px;
+  transition: background-color 1s;
 }
 </style>
