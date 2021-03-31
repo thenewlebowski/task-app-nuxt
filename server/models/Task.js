@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const User = require('./User')
 const ObjectId = mongoose.Schema.Types.ObjectId
 
 const TaskSchema = mongoose.Schema(
@@ -93,6 +94,16 @@ const TaskSchema = mongoose.Schema(
     timestamps: true
   }
 )
-
+TaskSchema.pre('save', function(next) {
+  if (this.assignee) {
+    User.findById(this.assignee, (err, user) => {
+      if (err) return console.log(err)
+      user.tasks.filter((task) => task.toString() !== this._id.toString())
+      user.tasks.push(this._id)
+      user.update()
+    })
+  }
+  next()
+})
 module.exports =
   mongoose.models.Task || mongoose.model('Task', TaskSchema, 'tasks')

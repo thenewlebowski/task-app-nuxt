@@ -1,11 +1,13 @@
 const router = require('express').Router()
 const nodemailer = require('nodemailer')
-const sparkPostTransport = require('nodemailer-sparkpost-transport')
+const SPT = require('nodemailer-sparkpost-transport')
 const Task = require('../models/Task')
 const User = require('../models/User')
+const upload = require('../middleware/upload')
+const csvCont = require('../controllers/tasks/csv.controller')
 
 const transporter = nodemailer.createTransport(
-  sparkPostTransport({
+  SPT({
     sparkPostApiKey: process.env.SPARKPOST_API_KEY
   })
 )
@@ -288,5 +290,7 @@ router
         res.status(500).json({ message: err.message })
       })
   })
+
+  .post('/uploadcsv', upload.single('file'), csvCont.bulkTaskUpload)
 
 module.exports.router = router
