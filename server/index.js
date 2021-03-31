@@ -7,6 +7,11 @@ const cookieParser = require('cookie-parser')
 const mongoose = require('mongoose')
 const cors = require('cors')
 
+// load env variable
+require('dotenv').config()
+
+// global variables
+global.__baseDir = __dirname
 // connect to mongodb
 mongoose.connect(process.env.MONGO_DB, {
   useNewUrlParser: true,
