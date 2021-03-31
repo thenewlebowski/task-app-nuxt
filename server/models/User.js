@@ -43,7 +43,6 @@ const UserSchema = mongoose.Schema(
       }
     ],
     board: [
-      // add this now or worry about it later when we want to add more boards?
       {
         type: ObjectId,
         ref: 'Board'
