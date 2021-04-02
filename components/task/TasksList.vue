@@ -91,8 +91,20 @@ export default {
         { text: 'Reporter', value: 'reporter' },
         { text: 'Date', value: 'dateAdded', width: '120px' },
         { text: 'Take', value: 'action', sortable: false }
-        // Todo: add points
       ]
+    }
+  },
+  computed: {
+    assigneeOrtask() {
+      return this.$route.name === 'assigned'
+        ? {
+            text: 'Assignee',
+            value: 'assignee'
+          }
+        : {
+            text: 'Take',
+            value: 'action'
+          }
     }
   },
   created() {

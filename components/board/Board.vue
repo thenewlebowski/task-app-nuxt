@@ -4,10 +4,10 @@
       <!-- <v-btn icon>
         <v-icon>mdi-settings</v-icon>
       </v-btn> -->
-      <v-toolbar-title :column="column" v-text="column.title" />
+      <v-toolbar-title :board="board" v-text="board.title" />
       <div class="flex-grow-1"></div>
       <div
-        v-bind:style="{ backgroundColor: column.color }"
+        v-bind:style="{ backgroundColor: board.color }"
         class="board-color"
       ></div>
       <!-- <v-btn icon>
@@ -17,19 +17,19 @@
     <v-container class="pa-2" fluid>
       <v-row>
         <v-col>
-          <div v-if="column.title !== 'Add Board'">
+          <div v-if="board.title !== 'Add Board'">
             <draggable
-              v-model="columnCopy.tasks"
+              v-model="boardCopy.tasks"
               v-bind="dragOptions"
               @start="drag = true"
               @end="drag = false"
-              @change="(evt) => handleMoveTask(evt, columnCopy.title)"
+              @change="(evt) => handleMoveTask(evt, boardCopy.title)"
               class="list-group pl-0"
               group="tasks"
               tag="ul"
             >
               <li
-                v-for="task in columnCopy.tasks"
+                v-for="task in boardCopy.tasks"
                 :key="task.id"
                 class="list-group-item"
               >
@@ -51,9 +51,9 @@
 
 <script>
 import draggable from 'vuedraggable'
-import BoardForm from './board/BoardForm'
-import TaskCard from './TaskCard'
-import TaskForm from './TaskForm'
+import TaskCard from '@/components/task/TaskCard'
+import TaskForm from '@/components/task/TaskForm'
+import BoardForm from '@/components/board/BoardForm'
 
 export default {
   components: {
@@ -63,14 +63,14 @@ export default {
     TaskCard
   },
   props: {
-    column: {
+    board: {
       type: Object,
       default: () => {}
     }
   },
   data: () => ({
     drag: false,
-    columnCopy: {
+    boardCopy: {
       title: 'Unassigned',
       tasks: []
     }
@@ -91,7 +91,7 @@ export default {
     }
   },
   mounted() {
-    this.columnCopy = { ...this.column }
+    this.boardCopy = { ...this.board }
   },
   methods: {
     sort() {
@@ -103,11 +103,14 @@ export default {
         const task = evt.added.element
 
         const payload = {
-          originalTask: task,
-          update: {
-            status: toColumnTitle,
-            index: evt.added.newIndex
-          }
+          task
+          // board
+          // originalTask: task,
+          // board: '',
+          // update: {
+          //   status: toColumnTitle,
+          //   index: evt.added.newIndex
+          // }
         }
 
         this.$store.dispatch('tasks/moveTask', payload)
