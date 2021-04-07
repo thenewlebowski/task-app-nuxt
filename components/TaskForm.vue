@@ -19,7 +19,7 @@
             <v-text-field
               v-model="title"
               :error-messages="titleErrors"
-              :counter="70"
+              :counter="100"
               @blur="$v.title.$touch()"
               @change="$v.title.$touch()"
               label="Title*"
@@ -122,15 +122,33 @@
 </template>
 
 <script>
-import formValidatorMixin from '@@/mixins/formValidatorMixin'
+import { validationMixin } from 'vuelidate'
+import { required, maxLength, minLength } from 'vuelidate/lib/validators'
 
 export default {
-  mixins: [formValidatorMixin],
+  name: 'TaskForm',
+  mixins: [validationMixin],
   props: {
     taskToEdit: {
       type: Object,
       default: null
     }
+  },
+  validations: {
+    title: {
+      required,
+      maxLength: maxLength(100)
+    },
+    description: {
+      minLength: minLength(10)
+    },
+    assignee: {},
+    priority: { required },
+    type: { required },
+    status: { required },
+    site: { required },
+    points: { required },
+    reporter: { required }
   },
   data: () => ({
     title: '',
@@ -175,6 +193,63 @@ export default {
     submitStatus: null
   }),
   computed: {
+    titleErrors() {
+      const errors = []
+      if (!this.$v.title.$dirty) return errors
+      !this.$v.title.maxLength &&
+        errors.push('Title must be at most 70 characters long')
+      !this.$v.title.required && errors.push('Title is required.')
+      return errors
+    },
+    descriptionErrors() {
+      const errors = []
+      if (!this.$v.description.$dirty) return errors
+      !this.$v.description.minLength &&
+        errors.push('Description has a minimum length of 10.')
+      return errors
+    },
+    priorityErrors() {
+      const errors = []
+      if (!this.$v.priority.$dirty) return errors
+      !this.$v.priority.required && errors.push('Priority is required.')
+      return errors
+    },
+    typeErrors() {
+      const errors = []
+      if (!this.$v.type.$dirty) return errors
+      !this.$v.type.required && errors.push('Type is required.')
+      return errors
+    },
+    statusErrors() {
+      const errors = []
+      if (!this.$v.status.$dirty) return errors
+      !this.$v.status.required && errors.push('Status is required.')
+      return errors
+    },
+    siteErrors() {
+      const errors = []
+      if (!this.$v.site.$dirty) return errors
+      !this.$v.site.required && errors.push('Site is required.')
+      return errors
+    },
+    pointsErrors() {
+      const errors = []
+      if (!this.$v.points.$dirty) return errors
+      !this.$v.points.required && errors.push('Points is required.')
+      return errors
+    },
+    assigneeErrors() {
+      const errors = []
+      if (!this.$v.assignee.$dirty) return errors
+      // !this.$v.assignee.required && errors.push('Assignee is required.')
+      return errors
+    },
+    reporterErrors() {
+      const errors = []
+      if (!this.$v.reporter.$dirty) return errors
+      !this.$v.reporter.required && errors.push('Reporter is required.')
+      return errors
+    },
     nameKey() {
       // switches name for id
       return this.$store.getters['user/getUsersNameAndIdKey']
@@ -192,17 +267,17 @@ export default {
   },
   methods: {
     handleSubmit() {
+      if (!this.reporter) {
+        this.reporter = this.$auth.user._id
+      }
       this.$v.$touch()
-
-      // if (this.$v.$error) return
+      if (this.$v.$error) return
       // console.log('errors', this.$v)
       if (this.taskToEdit) {
         this.handleEditTask()
       } else {
         this.handleAddTask()
       }
-
-      this.dialog = false
     },
     handleAddTask() {
       const task = {
@@ -216,8 +291,7 @@ export default {
         points: this.points,
         assignee: Object.keys(this.nameKey).filter(
           (key) => this.nameKey[key] === this.assignee
-        )[0],
-        reporter: this.$auth.user._id
+        )[0]
       }
       // if (route === 'index') {
       //   task.reporter = this.$auth.user._id
@@ -225,8 +299,16 @@ export default {
       //   task.reporter = null
       // }
 
-      this.$store.dispatch('tasks/addTask', task)
-      this.dialog = false
+      this.$store
+        .dispatch('tasks/addTask', task)
+        .then((res) => {
+          if (res.status !== 200) throw new Error(res)
+          this.showSuccess()
+          this.dialog = false
+        })
+        .catch(() => {
+          this.showError()
+        })
     },
     handleEditTask() {
       const payload = {
@@ -246,7 +328,16 @@ export default {
         taskId: this.taskToEdit._id
       }
 
-      this.$store.dispatch('tasks/updateTask', payload)
+      this.$store
+        .dispatch('tasks/updateTask', payload)
+        .then((res) => {
+          if (res.status !== 200) throw new Error(res)
+          this.showSuccess()
+          this.dialog = false
+        })
+        .catch(() => {
+          this.showError()
+        })
     },
     clear() {
       this.$v.$reset()
@@ -262,6 +353,19 @@ export default {
       }
 
       this.dialog = false
+    }
+  },
+  notifications: {
+    showError: {
+      title: 'Failed',
+      message:
+        'Failed to submit task please check forms for errors or try again later',
+      type: 'error'
+    },
+    showSuccess: {
+      title: 'Success',
+      message: 'Succesfully submitted task',
+      type: 'success'
     }
   }
 }

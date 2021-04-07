@@ -165,11 +165,13 @@ export const actions = {
   addTask({ commit }, task) {
     return axios.post('api/tasks', task).then((response) => {
       commit('ADD_TASK', response.data.newTask)
+      return response
     })
   },
   updateTask({ commit }, payload) {
     return axios.put('api/tasks', payload).then((response) => {
       commit('UPDATE_TASK', response.data.updatedTask)
+      return response
     })
   },
   moveTask({ commit }, payload) {
