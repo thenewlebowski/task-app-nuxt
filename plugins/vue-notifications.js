@@ -1,18 +1,11 @@
 import Vue from 'vue'
 import VueNotifications from 'vue-notifications'
-import miniToastr from 'mini-toastr'
-
-const toastTypes = {
-  success: 'success',
-  error: 'error',
-  info: 'info',
-  warn: 'warn'
-}
-
-miniToastr.init({ types: toastTypes })
+import iziToast from 'izitoast'
+import 'izitoast/dist/css/iziToast.min.css'
 
 function toast({ title, message, type, timeout, cb }) {
-  return miniToastr[type](message, title, timeout, cb)
+  if (type === VueNotifications.types.warn) type = 'warning'
+  return iziToast[type]({ title, message, timeout })
 }
 
 const options = {

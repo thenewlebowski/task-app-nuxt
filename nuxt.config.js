@@ -44,7 +44,7 @@ module.exports = {
   /*
    ** Global CSS
    */
-  css: [],
+  css: ['@assets/css/notification.css'],
   /*
    ** Plugins to load before mounting the App
    */
