@@ -54,7 +54,7 @@ export default {
     },
     title: {
       required,
-      maxLength: maxLength(70)
+      maxLength: maxLength(100)
     },
     description: {
       minLength: minLength(10)
