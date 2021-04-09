@@ -2,47 +2,52 @@ import axios from 'axios'
 import Vue from 'vue'
 
 export const state = () => ({
-  columns: {},
-  unassignedTasks: [],
-  othersTasks: [],
-  archivedTasks: [],
+  // unassignedTasks
+  unassigned: [], // all unassigned tasks
+  assigned: [], // all assigned tasks
+  archived: [], // all archived tasks
+  current: {}, // all current users tasks
   title: ''
 })
 
 export const mutations = {
   SET_TASKS(state, tasks) {
-    const columnsObj = {}
-    let columnKey = 0
-
     tasks.forEach((task) => {
-      const columnName = task.status
-
-      if (columnsObj.hasOwnProperty(task.status)) {
-        columnsObj[columnName].tasks.push(task)
-      } else {
-        columnsObj[columnName] = {
-          key: columnKey,
-          title: columnName,
-          tasks: [task]
-        }
-        columnKey++
-      }
+      state.current[task.board] = []
     })
-    // puts the tasks in order by their 'index' value
-    Object.keys(columnsObj).forEach((columnTitle) => {
-      columnsObj[columnTitle].tasks.sort((a, b) => a.index > b.index)
-    })
+    state.current = tasks
+    // const columnsObj = {}
+    // let columnKey = 0
 
-    state.columns = columnsObj
+    // tasks.forEach((task) => {
+    //   const columnName = task.status
+
+    //   if (columnsObj.hasOwnProperty(task.status)) {
+    //     columnsObj[columnName].tasks.push(task)
+    //   } else {
+    //     columnsObj[columnName] = {
+    //       key: columnKey,
+    //       title: columnName,
+    //       tasks: [task]
+    //     }
+    //     columnKey++
+    //   }
+    // })
+    // // puts the tasks in order by their 'index' value
+    // Object.keys(columnsObj).forEach((columnTitle) => {
+    //   columnsObj[columnTitle].tasks.sort((a, b) => a.index > b.index)
+    // })
+
+    // state.columns = columnsObj
   },
   SET_UNASSIGNED_TASKS(state, tasks) {
-    state.unassignedTasks = tasks
+    state.unassigned = tasks
   },
   SET_OTHERS_TASKS(state, tasks) {
-    state.othersTasks = tasks
+    state.assigned = tasks
   },
   SET_ARCHIVED_TASKS(state, tasks) {
-    state.archivedTasks = tasks
+    state.archived = tasks
   },
   SET_TASK(state, task) {
     state.task = task
@@ -54,7 +59,7 @@ export const mutations = {
 
       Vue.set(state.columns, task.status, column)
     } else {
-      state.unassignedTasks.push(task)
+      state.unassigned.push(task)
     }
   },
   UPDATE_TASK(state, taskToEdit) {
@@ -70,7 +75,7 @@ export const mutations = {
 
       Vue.set(state.columns, taskToEdit.status, column)
     } else {
-      state.unassignedTasks = state.unassignedTasks.map((task) => {
+      state.unassigned = state.unassigned.map((task) => {
         if (task._id === taskToEdit._id) {
           return taskToEdit
         } else {
@@ -80,10 +85,12 @@ export const mutations = {
     }
   },
   MOVE_TASK(state, payload) {
-    const { fromColName, fromColumnTasks, toColName, toColumnTasks } = payload
-
-    Vue.set(state.columns[fromColName], 'tasks', fromColumnTasks)
-    Vue.set(state.columns[toColName], 'tasks', toColumnTasks)
+    // console.log(state)
+    // console.log(payload)
+    // this.state.tasks
+    // const { fromColName, fromColumnTasks, toColName, toColumnTasks } = payload
+    // Vue.set(state.columns[fromColName], 'tasks', fromColumnTasks)
+    // Vue.set(state.columns[toColName], 'tasks', toColumnTasks)
   },
   TAKE_TASK(state, takenTask) {
     const toColName = takenTask.status
@@ -92,7 +99,7 @@ export const mutations = {
 
     Vue.set(state.columns[toColName], 'tasks', tasks)
 
-    state.unassignedTasks = state.unassignedTasks.filter(
+    state.unassigned = state.unassigned.filter(
       (task) => task._id !== takenTask._id
     )
   },
@@ -106,22 +113,22 @@ export const mutations = {
       })
     })
 
-    state.unassignedTasks.forEach((task, i) => {
+    state.unassigned.forEach((task, i) => {
       if (task._id === archivedTask._id) {
-        state.unassignedTasks.splice(i, 1)
+        state.unassigned.splice(i, 1)
       }
     })
   },
   UNARCHIVE_TASK(state, unarchivedTask) {
-    state.archivedTasks = state.archivedTasks.filter(
+    state.archived = state.archived.filter(
       (task) => task._id !== unarchivedTask._id
     )
     if (unarchivedTask.assignee === null) {
-      state.unassignedTasks.push(unarchivedTask)
+      state.unassigned.push(unarchivedTask)
     }
     switch (unarchivedTask.assignee) {
       case null:
-        state.unassignedTasks.push(unarchivedTask)
+        state.unassigned.push(unarchivedTask)
         break
       case this.$auth.user._id:
         const updatedColumn = state.columns[unarchivedTask.status]
@@ -129,7 +136,7 @@ export const mutations = {
         Vue.set(state.columns, unarchivedTask.status, updatedColumn)
         break
       default:
-        state.othersTasks.push(unarchivedTask)
+        state.assigned.push(unarchivedTask)
     }
   },
   SET_TITLE(state, title) {
@@ -137,7 +144,7 @@ export const mutations = {
   }
 }
 export const actions = {
-  fetchTasks({ commit }) {
+  fetchCurrent({ commit }) {
     return axios.get('api/tasks').then((response) => {
       commit('SET_TASKS', response.data)
     })
@@ -177,6 +184,7 @@ export const actions = {
   moveTask({ commit }, payload) {
     return axios.put('api/tasks/move', payload).then((response) => {
       commit('MOVE_TASK', response.data)
+      return response
     })
   },
   takeTask({ commit }, task) {
@@ -196,19 +204,19 @@ export const actions = {
   }
 }
 export const getters = {
-  getColumns(state) {
-    return state.columns
+  getCurrent(state) {
+    return state.current
   },
   getTitle(state) {
     return state.title
   },
   getUnassignedTasks(state) {
-    return state.unassignedTasks
+    return state.unassigned
   },
   getOthersTasks(state) {
-    return state.othersTasks
+    return state.assigned
   },
   getArchivedTasks(state) {
-    return state.archivedTasks
+    return state.archived
   }
 }

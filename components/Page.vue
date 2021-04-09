@@ -17,9 +17,11 @@ export default {
     boards: []
   }),
   async created() {
+    await this.$store.dispatch('tasks/fetchCurrent')
     await this.$store.dispatch('boards/fetchBoards')
     await this.$store.dispatch('user/fetchUsers')
     this.boards = this.$store.getters['boards/getBoards']
+    this.tasks = this.$store.getters['tasks/getCurrent']
 
     this.boards.push({
       title: 'Add Board'

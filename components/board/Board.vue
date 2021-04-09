@@ -4,10 +4,14 @@
       <!-- <v-btn icon>
         <v-icon>mdi-settings</v-icon>
       </v-btn> -->
-      <v-toolbar-title :board="board" v-text="board.title" />
+      <v-toolbar-title :board="boardCopy" v-text="boardCopy.title" />
+      <div v-if="boardCopy.title === 'Add Board'">
+        <v-chip class="ma-2" color="green" text-color="white">New</v-chip>
+      </div>
       <div class="flex-grow-1"></div>
       <div
-        v-bind:style="{ backgroundColor: board.color }"
+        v-if="boardCopy.color"
+        v-bind:style="{ backgroundColor: boardCopy.color }"
         class="board-color"
       ></div>
       <!-- <v-btn icon>
@@ -17,7 +21,7 @@
     <v-container class="pa-2" fluid>
       <v-row>
         <v-col>
-          <div v-if="board.title !== 'Add Board'">
+          <div v-if="boardCopy.title !== 'Add Board'">
             <draggable
               v-model="boardCopy.tasks"
               v-bind="dragOptions"
@@ -97,24 +101,50 @@ export default {
     sort() {
       this.list = this.list.sort((a, b) => a.order - b.order)
     },
-    handleMoveTask(evt, toColumnTitle) {
-      if (evt.added) {
-        window.console.log(evt, toColumnTitle)
-        const task = evt.added.element
-
+    handleMoveTask(evt) {
+      if (evt.added || evt.moved) {
+        const { element, newIndex } = evt.added || evt.moved
+        element.index = newIndex
         const payload = {
-          task
-          // board
-          // originalTask: task,
-          // board: '',
-          // update: {
-          //   status: toColumnTitle,
-          //   index: evt.added.newIndex
-          // }
+          task: element,
+          board: this.boardCopy
         }
-
-        this.$store.dispatch('tasks/moveTask', payload)
+        // console.log(payload.board)
+        this.$store
+          .dispatch('tasks/moveTask', payload)
+          .then(async (res) => {
+            if (res.status !== 200) {
+              throw new Error(res)
+              // return (this.boardCopy.tasks = this.board.task)
+            }
+            this.showMoveSuccess()
+            const data = res.data
+            // set update the front end task that was just moved
+            const updated = await this.boardCopy.tasks.filter((task, index) => {
+              task.index = index
+              return task._id !== data.task._id.toString()
+            })
+            await updated.push(data.task)
+            await updated.sort((a, b) => a.index - b.index)
+            this.boardCopy.tasks = updated
+          })
+          .catch((err) => {
+            this.showMoveError()
+            return err
+          })
       }
+    }
+  },
+  notifications: {
+    showMoveSuccess: {
+      type: 'Success',
+      title: 'Moved task',
+      message: 'Successfully moved task'
+    },
+    showMoveError: {
+      type: 'Error',
+      title: 'Error',
+      message: 'Error moving task, please contact system admin'
     }
   }
 }

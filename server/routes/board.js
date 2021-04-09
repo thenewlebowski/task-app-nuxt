@@ -17,11 +17,10 @@ router
       })
       .exec((err, boards) => {
         if (err) return next(err)
-        return res.json(boards)
+        return res.status(200).json(boards)
       })
   })
   .post('/', (req, res, next) => {
-    console.log(req.body)
     Board.create(req.body, (err, board) => {
       if (err) return next(err)
       return res.json(board)
