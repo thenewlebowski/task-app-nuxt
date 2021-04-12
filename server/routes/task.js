@@ -130,7 +130,6 @@ router
         const loggedInUser = req.session.user._id
         const assignee = User.findById(updatedTask.assignee)
         const reporter = User.findById(updatedTask.reporter)
-
         if (loggedInUser === assignee) {
           sendMail(
             reporter.email,
@@ -142,11 +141,10 @@ router
             `${reporter.firstName} updated the task ${updatedTask.title}`
           )
         }
-
-        res.status(200).json({ updatedTask })
+        return res.status(200).json({ updatedTask })
       })
       .catch((err) => {
-        res.status(500).json({ message: err.message })
+        return res.status(500).json({ message: err.message })
       })
   })
   .put('/take', (req, res) => {
@@ -177,19 +175,23 @@ router
   })
   .put('/move', async (req, res) => {
     const { task, board } = req.body
-    const index = task.index
+    // returned value
+    const tasks = {
+      board: board._id,
+      value: []
+    }
     // reassign all indexes
     await board.tasks.forEach((task, index) =>
       Task.findByIdAndUpdate(
         task._id,
         { index },
         { new: true },
-        (err, task) => {
+        async (err, task) => {
           if (err) return err
+          await tasks.value.push(task)
         }
       )
     )
-
     Task.findById(task._id, (err, task) => {
       if (err || !task)
         return res.status(500).json(err ? { err } : 'No task found')
@@ -197,19 +199,19 @@ router
       Board.findById(task.board, async function(err, oldBoard) {
         if (err || !oldBoard) return err || 'No Old Board found'
         oldBoard.tasks = await oldBoard.tasks.filter(
-          (id) => id.toString() !== task._id
+          (id) => id.toString() !== task._id.toString()
         )
         oldBoard
           .save()
           .then(() => {
             // update task to have the new board _id
-            task.index = index
             task.board = board._id
             task.status = board.title
             task
               .save()
-              .then((newTask) => {
-                return res.status(200).json({ task: newTask })
+              .then(async (newTask) => {
+                await tasks.value.sort((a, b) => a.index - b.index)
+                return res.status(200).json({ tasks })
               })
               .catch((err) => {
                 return res.status(500).json({ err })
@@ -219,99 +221,9 @@ router
             return res.status(500).json({ err })
           })
       })
-
-      // task.updateOne()
-      // .then(modified => {
-      //   res.status(200).json({task : modified})
-      // })
-      // .catch(err => {
-      //   return res.status(500).json({err})
-      // })
     })
-    // const { originalTask, update } = req.body
-    // let fromColumnTasks
-    // let toColumnTasks
-    // let updatedTask
-
-    // try {
-    //   // updated the moved task
-    //   await Task.findByIdAndUpdate(originalTask._id, update, {
-    //     new: true
-    //   })
-    //     .then((task) => {
-    //       updatedTask = task
-
-    //       const assignee = User.findById(updatedTask.assignee)
-    //       const reporter = User.findById(updatedTask.reporter)
-    //       if(reporter)
-    //       {
-    //         sendMail(
-    //           reporter.email,
-    //           `${assignee.firstName} has moved the task "${updatedTask.title}" from ${originalTask.status} to ${updatedTask.status}.`
-    //         )
-    //       }
-    //     })
-    //     .catch((err) => {
-    //       res.status(500).json({ message: err.message })
-    //     })
-    //   // change all toColumn tasks
-    //   await Task.find(
-    //     {
-    //       assignee: req.session.user._id,
-    //       status: update.status
-    //     },
-    //     (err, tasks) => {
-    //       if (err) {
-    //         res.status(500).json({ message: err.message })
-    //       }
-
-    //       tasks.sort((a, b) => a.index > b.index)
-    //       tasks.splice(updatedTask.index, 0, updatedTask)
-    //       tasks.forEach((task, i) => {
-    //         task.index = i
-    //         Task.update({ _id: task._id }, { index: i })
-    //       })
-
-    //       toColumnTasks = tasks
-    //     }
-    //   )
-    //   // change all fromColumn tasks
-    //   await Task.find(
-    //     {
-    //       assignee: req.session.user._id,
-    //       status: originalTask.status
-    //     },
-    //     (err, tasks) => {
-    //       if (err) {
-    //         res.status(500).json({ message: err.message })
-    //       }
-
-    //       tasks.sort((a, b) => a.index > b.index)
-    //       tasks.forEach((task, i) => {
-    //         task.index = 1
-    //         Task.update({ _id: task._id }, { index: i })
-    //       })
-
-    //       fromColumnTasks = tasks
-    //     }
-    //   )
-    // } catch (err) {
-    //   res.status(500).json({ message: err.message })
-    // } finally {
-    //   if (fromColumnTasks && toColumnTasks) {
-    //     res.status(200).json({
-    //       fromColumnTasks,
-    //       toColumnTasks,
-    //       fromColName: originalTask.status,
-    //       toColName: update.status
-    //     })
-    //   } else {
-    //     res.status(500).json({
-    //       message: 'fromColumnTasks or toColumnTasks undefined'
-    //     })
-    //   }
-    // }
   })
+
   .post('/archive', (req, res) => {
     const { taskId } = req.body
 

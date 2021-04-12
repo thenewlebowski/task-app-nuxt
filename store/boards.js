@@ -1,10 +1,14 @@
 import axios from 'axios'
 
 export const state = () => ({
-  boards: {}
+  boards: {},
+  boardKey: {}
 })
 
 export const mutations = {
+  UPDATE_BOARD(state, data) {
+    state.boards[data.board].tasks = data.value
+  },
   SET_BOARD_KEY(state, boards) {
     const key = {}
     boards.map((board) => (key[board._id] = board.title))
@@ -12,11 +16,17 @@ export const mutations = {
   },
   // creates object that we can refer to for department _ids
   SET_BOARDS(state, boards) {
-    return (state.boards = boards)
+    return boards.forEach((board) => {
+      state.boards[board._id] = board
+    })
   }
 }
 
 export const actions = {
+  updateBoard({ commit }, data) {
+    commit('UPDATE_BOARD', data)
+    return data
+  },
   fetchBoards({ commit }) {
     const _id = this.$auth.user._id
     return axios.get('api/boards', { _id }).then((res) => {
@@ -27,7 +37,7 @@ export const actions = {
 
   createBoard({ commit }, data) {
     return axios.post('api/boards', data).then((res) => {
-      commit('SET_BOARDS', res.data)
+      commit('SET_BOARDS', [res.data])
     })
   }
 }

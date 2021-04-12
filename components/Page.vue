@@ -23,9 +23,9 @@ export default {
     this.boards = this.$store.getters['boards/getBoards']
     this.tasks = this.$store.getters['tasks/getCurrent']
 
-    this.boards.push({
+    this.boards['Add Board'] = {
       title: 'Add Board'
-    })
+    }
   }
 }
 </script>

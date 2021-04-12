@@ -41,6 +41,11 @@ const TaskSchema = mongoose.Schema(
     index: {
       type: Number
     },
+    color: {
+      type: String,
+      required: false,
+      default: '#3F51B5'
+    },
     site: {
       type: String,
       required: true,

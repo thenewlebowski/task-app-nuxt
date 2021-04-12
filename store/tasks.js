@@ -6,39 +6,12 @@ export const state = () => ({
   unassigned: [], // all unassigned tasks
   assigned: [], // all assigned tasks
   archived: [], // all archived tasks
-  current: {}, // all current users tasks
-  title: ''
+  index: [] // all index users tasks
 })
 
 export const mutations = {
   SET_TASKS(state, tasks) {
-    tasks.forEach((task) => {
-      state.current[task.board] = []
-    })
-    state.current = tasks
-    // const columnsObj = {}
-    // let columnKey = 0
-
-    // tasks.forEach((task) => {
-    //   const columnName = task.status
-
-    //   if (columnsObj.hasOwnProperty(task.status)) {
-    //     columnsObj[columnName].tasks.push(task)
-    //   } else {
-    //     columnsObj[columnName] = {
-    //       key: columnKey,
-    //       title: columnName,
-    //       tasks: [task]
-    //     }
-    //     columnKey++
-    //   }
-    // })
-    // // puts the tasks in order by their 'index' value
-    // Object.keys(columnsObj).forEach((columnTitle) => {
-    //   columnsObj[columnTitle].tasks.sort((a, b) => a.index > b.index)
-    // })
-
-    // state.columns = columnsObj
+    state.index = tasks
   },
   SET_UNASSIGNED_TASKS(state, tasks) {
     state.unassigned = tasks
@@ -62,35 +35,27 @@ export const mutations = {
       state.unassigned.push(task)
     }
   },
-  UPDATE_TASK(state, taskToEdit) {
-    if (taskToEdit.assignee === this.$auth.user._id) {
-      const column = state.columns[taskToEdit.status]
-      column.tasks = column.tasks.map((task) => {
-        if (task._id === taskToEdit._id) {
-          return taskToEdit
-        } else {
-          return task
-        }
-      })
-
-      Vue.set(state.columns, taskToEdit.status, column)
-    } else {
-      state.unassigned = state.unassigned.map((task) => {
-        if (task._id === taskToEdit._id) {
-          return taskToEdit
-        } else {
-          return task
-        }
-      })
-    }
+  UPDATE_TASK(state, task) {
+    state[task.route] = state[task.route].filter(
+      (old) => old._id.toString() !== task._id.toString()
+    )
+    state[task.route].push(task)
+    return task
   },
-  MOVE_TASK(state, payload) {
-    // console.log(state)
-    // console.log(payload)
-    // this.state.tasks
-    // const { fromColName, fromColumnTasks, toColName, toColumnTasks } = payload
-    // Vue.set(state.columns[fromColName], 'tasks', fromColumnTasks)
-    // Vue.set(state.columns[toColName], 'tasks', toColumnTasks)
+  async MOVE_TASK(state, payload) {
+    const { value } = payload.tasks
+    const payloadKey = {}
+    const route = state[payload.route]
+    await value.forEach((task) => {
+      payloadKey[task._id] = task
+    })
+    state[payload.route] = await route.filter((task) => {
+      return !payload[task._id]
+    })
+    value.forEach((task) => {
+      state[payload.route].push(task)
+    })
+    return payload
   },
   TAKE_TASK(state, takenTask) {
     const toColName = takenTask.status
@@ -176,14 +141,20 @@ export const actions = {
     })
   },
   updateTask({ commit }, payload) {
+    const { route } = payload
     return axios.put('api/tasks', payload).then((response) => {
-      commit('UPDATE_TASK', response.data.updatedTask)
+      const task = response.data.updatedTask
+      task.route = route
+      commit('UPDATE_TASK', task)
       return response
     })
   },
   moveTask({ commit }, payload) {
     return axios.put('api/tasks/move', payload).then((response) => {
-      commit('MOVE_TASK', response.data)
+      const { route } = payload
+      const data = response.data
+      data.route = route
+      commit('MOVE_TASK', data)
       return response
     })
   },
@@ -205,7 +176,7 @@ export const actions = {
 }
 export const getters = {
   getCurrent(state) {
-    return state.current
+    return state.index
   },
   getTitle(state) {
     return state.title

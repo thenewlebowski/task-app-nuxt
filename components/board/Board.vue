@@ -107,28 +107,27 @@ export default {
         element.index = newIndex
         const payload = {
           task: element,
-          board: this.boardCopy
+          board: this.boardCopy,
+          route: this.$route.name
         }
-        // console.log(payload.board)
         this.$store
           .dispatch('tasks/moveTask', payload)
-          .then(async (res) => {
+          .then((res) => {
             if (res.status !== 200) {
               throw new Error(res)
-              // return (this.boardCopy.tasks = this.board.task)
             }
-            this.showMoveSuccess()
-            const data = res.data
-            // set update the front end task that was just moved
-            const updated = await this.boardCopy.tasks.filter((task, index) => {
-              task.index = index
-              return task._id !== data.task._id.toString()
-            })
-            await updated.push(data.task)
-            await updated.sort((a, b) => a.index - b.index)
-            this.boardCopy.tasks = updated
+            this.$store
+              .dispatch('boards/updateBoard', res.data.tasks)
+              .then((res) => {
+                this.showMoveSuccess()
+              })
+              .catch((err) => {
+                this.showMoveError()
+                return err
+              })
           })
           .catch((err) => {
+            // this.boardCopy.tasks = this.board.tasks
             this.showMoveError()
             return err
           })
@@ -136,15 +135,15 @@ export default {
     }
   },
   notifications: {
-    showMoveSuccess: {
-      type: 'Success',
-      title: 'Moved task',
-      message: 'Successfully moved task'
-    },
     showMoveError: {
-      type: 'Error',
-      title: 'Error',
-      message: 'Error moving task, please contact system admin'
+      title: 'Failed',
+      message: 'Error moving task, please contact system admin',
+      type: 'error'
+    },
+    showMoveSuccess: {
+      title: 'Success',
+      message: 'Successfully moved task',
+      type: 'success'
     }
   }
 }

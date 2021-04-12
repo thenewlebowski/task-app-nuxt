@@ -147,8 +147,7 @@ export default {
     type: { required },
     status: { required },
     site: { required },
-    points: { required },
-    reporter: { required }
+    points: { required }
   },
   data: () => ({
     title: '',
@@ -280,17 +279,16 @@ export default {
         )[0]
       }
 
-      // reporter logic
-      if (!this.reporter && !this.taskToEdit) {
-        this.reporter = this.$auth.user._id
-      }
       // assignee logic
       this.assigneeId = Object.keys(this.nameKey).filter(
         (key) => this.nameKey[key] === this.assignee
       )[0]
 
       this.$v.$touch()
-      if (this.$v.$error) return
+      if (this.$v.$error) {
+        console.log(this.$v)
+        return
+      }
       if (this.taskToEdit) {
         this.handleEditTask()
       } else {
@@ -336,12 +334,14 @@ export default {
           assignee: this.assigneeId,
           board: this.board
         },
-        taskId: this.taskToEdit._id
+        taskId: this.taskToEdit._id,
+        route: this.$route.name
       }
-
+      // console.log(payload)
       this.$store
         .dispatch('tasks/updateTask', payload)
         .then((res) => {
+          console.log(res)
           if (res.status !== 200) throw new Error(res)
           this.showSuccess()
           this.dialog = false
