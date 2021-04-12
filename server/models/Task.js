@@ -9,6 +9,11 @@ const TaskSchema = mongoose.Schema(
       type: String
       // required: true
     },
+    public: {
+      required: false,
+      type: Boolean,
+      default: true
+    },
     board: {
       type: ObjectId,
       required: false,
@@ -35,8 +40,7 @@ const TaskSchema = mongoose.Schema(
     },
     status: {
       type: String,
-      required: true,
-      enum: ['To Do', 'In Progress', 'Done', 'Backlog']
+      required: true
     },
     index: {
       type: Number

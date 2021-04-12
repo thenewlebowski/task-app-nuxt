@@ -23,7 +23,7 @@ router
   .post('/', (req, res, next) => {
     Board.create(req.body, (err, board) => {
       if (err) return next(err)
-      return res.json(board)
+      return res.status(200).json(board)
     })
   })
 

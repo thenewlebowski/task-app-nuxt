@@ -16,9 +16,10 @@ export const mutations = {
   },
   // creates object that we can refer to for department _ids
   SET_BOARDS(state, boards) {
-    return boards.forEach((board) => {
+    boards.forEach((board) => {
       state.boards[board._id] = board
     })
+    return boards
   }
 }
 
@@ -36,9 +37,15 @@ export const actions = {
   },
 
   createBoard({ commit }, data) {
-    return axios.post('api/boards', data).then((res) => {
-      commit('SET_BOARDS', [res.data])
-    })
+    return axios
+      .post('api/boards', data)
+      .then((res) => {
+        commit('SET_BOARDS', [res.data])
+        return res
+      })
+      .catch((err) => {
+        return err
+      })
   }
 }
 

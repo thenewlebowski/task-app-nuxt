@@ -180,6 +180,7 @@ router
       board: board._id,
       value: []
     }
+
     // reassign all indexes
     await board.tasks.forEach((task, index) =>
       Task.findByIdAndUpdate(
@@ -187,14 +188,16 @@ router
         { index },
         { new: true },
         async (err, task) => {
-          if (err) return err
+          if (err) return res.status(500).json({ message: err.message })
           await tasks.value.push(task)
         }
       )
     )
+
     Task.findById(task._id, (err, task) => {
       if (err || !task)
         return res.status(500).json(err ? { err } : 'No task found')
+
       // old board _id should be populated on the task itself
       Board.findById(task.board, async function(err, oldBoard) {
         if (err || !oldBoard) return err || 'No Old Board found'

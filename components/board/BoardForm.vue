@@ -125,8 +125,29 @@ export default {
       }
       this.$store
         .dispatch('boards/createBoard', payload)
-        .then((res) => console.log(res))
-        .catch((err) => console.log(err.message))
+        .then((res) => {
+          if (res.status !== 200) {
+            throw new Error(res)
+          }
+          this.showCreateSuccess()
+          this.visible = false
+        })
+        .catch((err) => {
+          this.showCreateError()
+          return err
+        })
+    }
+  },
+  notifications: {
+    showCreateError: {
+      title: 'Failed',
+      message: 'Error creating custom board please contact system admin',
+      type: 'error'
+    },
+    showCreateSuccess: {
+      title: 'Success',
+      message: 'Successfully created custom board',
+      type: 'success'
     }
   }
 }
