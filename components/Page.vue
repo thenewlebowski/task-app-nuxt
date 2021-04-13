@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex flex-row">
-    <div v-for="board in Object.values(boards)" :key="board._id">
+    <div v-for="board in boards" :key="board._id">
       <Board :board="board" />
     </div>
     <div>
@@ -21,6 +21,7 @@
 </template>
 
 <script>
+import Vue from 'vue'
 import BoardForm from '@/components/board/BoardForm'
 import Board from './board/Board'
 
@@ -30,28 +31,30 @@ export default {
     BoardForm
   },
   data() {
-    return { boards: [] }
+    return { boards: {} }
   },
   computed: {},
   async created() {
-    this.unsubscribe = await this.$store.subscribe(async (action, state) => {
+    this.unsubscribe = this.$store.subscribe((action, state) => {
       if (action.type === 'boards/SET_BOARDS') {
-        const payloadKey = {}
-        await action.payload.map((board) => {
-          payloadKey[board._id.toString()] = board
-        })
-        const boards = this.boards
-        boards.filter((board) => !payloadKey[board._id.toString()])
-        await action.payload.forEach((board) => {
-          boards.push(board)
-        })
-        this.boards = boards
+        this.updateBoards(action.payload)
       }
     })
     await this.$store.dispatch('tasks/fetchCurrent')
     await this.$store.dispatch('boards/fetchBoards')
     await this.$store.dispatch('user/fetchUsers')
     this.tasks = this.$store.getters['tasks/getCurrent']
+  },
+  beforeDestroy() {
+    this.unsubscribe()
+  },
+
+  methods: {
+    updateBoards(payload) {
+      payload.forEach((board, i) => {
+        Vue.set(this.boards, board._id, board)
+      })
+    }
   }
 }
 </script>

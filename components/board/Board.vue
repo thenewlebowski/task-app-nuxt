@@ -4,14 +4,14 @@
       <!-- <v-btn icon>
         <v-icon>mdi-settings</v-icon>
       </v-btn> -->
-      <v-toolbar-title :board="boardCopy" v-text="boardCopy.title" />
-      <div v-if="boardCopy.title === 'Add Board'">
+      <v-toolbar-title :board="board" v-text="board.title" />
+      <div v-if="board.title === 'Add Board'">
         <v-chip class="ma-2" color="green" text-color="white">New</v-chip>
       </div>
       <div class="flex-grow-1"></div>
       <div
-        v-if="boardCopy.color"
-        v-bind:style="{ backgroundColor: boardCopy.color }"
+        v-if="board.color"
+        v-bind:style="{ backgroundColor: board.color }"
         class="board-color"
       ></div>
       <!-- <v-btn icon>
@@ -21,19 +21,19 @@
     <v-container class="pa-2" fluid>
       <v-row>
         <v-col>
-          <div v-if="boardCopy.title !== 'Add Board'">
+          <div v-if="board.title !== 'Add Board'">
             <draggable
-              v-model="boardCopy.tasks"
+              v-model="board.tasks"
               v-bind="dragOptions"
               @start="drag = true"
               @end="drag = false"
-              @change="(evt) => handleMoveTask(evt, boardCopy.title)"
+              @change="(evt) => handleMoveTask(evt, board.title)"
               class="list-group pl-0"
               group="tasks"
               tag="ul"
             >
               <li
-                v-for="task in boardCopy.tasks"
+                v-for="task in board.tasks"
                 :key="task.id"
                 class="list-group-item"
               >
@@ -107,7 +107,7 @@ export default {
         element.index = newIndex
         const payload = {
           task: element,
-          board: this.boardCopy,
+          board: this.board,
           route: this.$route.name
         }
         this.$store

@@ -260,7 +260,7 @@ router
   .post('/unarchive', (req, res) => {
     const { taskId } = req.body
 
-    Task.findByIdAndUpdate(taskId, { archived: null }, { new: true })
+    Task.findByIdAndUpdate(taskId, { archived: false }, { new: true })
       .then((unarchivedTask) => {
         // const assignee = User.findById(unarchivedTask.assignee)
         // const reporter = User.findById(unarchivedTask.reporter)

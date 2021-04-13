@@ -33,7 +33,30 @@
 
         <v-card-actions>
           <TaskForm :task-to-edit="task" />
-          <ArchiveTaskModal :taskId="task._id" @archived="taskview = false" />
+          <template>
+            <v-menu max-width="600px">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn v-bind="attrs" v-on="on" outlined text float-right
+                  >Archive
+                  <v-icon v-bind="attrs" v-on="on" right>
+                    mdi-xamarin
+                  </v-icon></v-btn
+                >
+              </template>
+              <template>
+                <v-list :style="{ 'text-align': 'center' }">
+                  <v-list-item-title>Are you sure?</v-list-item-title>
+                  <v-list-item
+                    v-for="(option, key) in options"
+                    @click="archiveTask(option)"
+                    v-bind:key="option"
+                  >
+                    {{ key }}
+                  </v-list-item>
+                </v-list>
+              </template>
+            </v-menu>
+          </template>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -66,8 +89,37 @@ export default {
     }
   },
   data: () => ({
+    options: { Yes: true, No: false },
     taskView: false
-  })
+  }),
+  methods: {
+    archiveTask(option) {
+      if (!option) return
+      this.$store
+        .dispatch('tasks/archiveTask', this.task._id)
+        .then((res) => {
+          if (res.status !== 200) throw new Error(res)
+          this.taskView = false
+          this.showArchiveSuccess()
+        })
+        .catch((err) => {
+          this.showArchiveError()
+          return err
+        })
+    }
+  },
+  notifications: {
+    showArchiveError: {
+      title: 'Failed',
+      message: 'Failed to archive task please contact system admin',
+      type: 'error'
+    },
+    showArchiveSuccess: {
+      title: 'Success',
+      message: 'Succesfully archived task',
+      type: 'success'
+    }
+  }
 }
 </script>
 

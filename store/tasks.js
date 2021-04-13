@@ -62,21 +62,31 @@ export const mutations = {
       (task) => task._id !== takenTask._id
     )
   },
-  ARCHIVE_TASK(state, archivedTask) {
-    Object.values(state.columns).forEach((column) => {
-      column.tasks.forEach((task, i) => {
-        if (task._id === archivedTask._id) {
-          column.tasks.splice(i, 1)
-          Vue.set(state.columns, task.status, column)
-        }
+  ARCHIVE_TASK(state, task) {
+    state.index = state.index.filter(
+      (t) => t.toString() !== task._id.toString()
+    )
+    state.archived.push(task)
+    this.dispatch('boards/archiveTask', task)
+      .then((task) => {
+        return task
       })
-    })
-
-    state.unassigned.forEach((task, i) => {
-      if (task._id === archivedTask._id) {
-        state.unassigned.splice(i, 1)
-      }
-    })
+      .catch((err) => {
+        return err
+      })
+    // Object.values(state.columns).forEach((column) => {
+    //   column.tasks.forEach((task, i) => {
+    //     if (task._id === archivedTask._id) {
+    //       column.tasks.splice(i, 1)
+    //       Vue.set(state.columns, task.status, column)
+    //     }
+    //   })
+    // })
+    // state.unassigned.forEach((task, i) => {
+    //   if (task._id === archivedTask._id) {
+    //     state.unassigned.splice(i, 1)
+    //   }
+    // })
   },
   UNARCHIVE_TASK(state, unarchivedTask) {
     state.archived = state.archived.filter(
@@ -160,7 +170,9 @@ export const actions = {
   },
   archiveTask({ commit }, taskId) {
     return axios.post('api/tasks/archive', { taskId }).then((response) => {
-      commit('ARCHIVE_TASK', response.data.archivedTask)
+      console.log(response)
+      commit('ARCHIVE_TASK', response.data.updated)
+      return response
     })
   },
   unarchiveTask({ commit }, taskId) {

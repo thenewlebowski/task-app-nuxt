@@ -17,13 +17,21 @@ export const mutations = {
   // creates object that we can refer to for department _ids
   SET_BOARDS(state, boards) {
     boards.forEach((board) => {
-      state.boards[board._id] = board
+      state.boards[board._id.toString()] = board
     })
-    return boards
+    return state
   }
 }
 
 export const actions = {
+  archiveTask({ commit }, data) {
+    const board = this.state.boards.boards[data.board]
+    board.tasks = board.tasks.filter(
+      (t) => t._id.toString() !== data._id.toString()
+    )
+    commit('SET_BOARDS', [board])
+    return data
+  },
   updateBoard({ commit }, data) {
     commit('UPDATE_BOARD', data)
     return data
