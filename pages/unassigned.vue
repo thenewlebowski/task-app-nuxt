@@ -26,13 +26,11 @@
 
 <script>
 import TasksList from '@/components/task/TasksList'
-import TakeTask from '@/components/task/TakeTask'
 
 export default {
   name: 'BrowsePage',
   components: {
-    TasksList,
-    TakeTask
+    TasksList
   },
   head: () => ({
     title: 'Browse'
