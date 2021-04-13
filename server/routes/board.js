@@ -15,8 +15,9 @@ router
           }
         }
       })
-      .exec((err, boards) => {
+      .exec(async (err, boards) => {
         if (err) return next(err)
+        await boards.sort((a, b) => a.index - b.index)
         return res.status(200).json(boards)
       })
   })
