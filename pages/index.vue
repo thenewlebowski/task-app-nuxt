@@ -1,17 +1,17 @@
 <template>
   <div>
-    <Board />
+    <Page />
   </div>
 </template>
 
 <script>
 import formValidatorMixin from '@@/mixins/formValidatorMixin'
-import Board from '@@/components/Board'
+import Page from '@@/components/Page'
 
 export default {
   name: 'TasksPage',
   components: {
-    Board
+    Page
   },
   mixins: [formValidatorMixin],
   head: () => ({

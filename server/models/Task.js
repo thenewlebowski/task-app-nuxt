@@ -1,12 +1,23 @@
 const mongoose = require('mongoose')
 const User = require('./User')
+const Board = require('./Board')
 const ObjectId = mongoose.Schema.Types.ObjectId
-
+const TypeObjectId = mongoose.Types.ObjectId
 const TaskSchema = mongoose.Schema(
   {
     title: {
-      type: String,
-      required: true
+      type: String
+      // required: true
+    },
+    public: {
+      required: false,
+      type: Boolean,
+      default: true
+    },
+    board: {
+      type: ObjectId,
+      required: false,
+      ref: 'Board'
     },
     description: {
       type: String,
@@ -19,20 +30,25 @@ const TaskSchema = mongoose.Schema(
     },
     type: {
       type: String,
-      required: true,
+      // required: true,
       enum: ['Task', 'Problem', 'General', 'Styling']
     },
     points: {
       type: Number,
+      default: 10,
       required: true
     },
     status: {
       type: String,
-      required: true,
-      enum: ['To Do', 'In Progress', 'Done', 'Backlog']
+      required: true
     },
     index: {
       type: Number
+    },
+    color: {
+      type: String,
+      required: false,
+      default: '#3F51B5'
     },
     site: {
       type: String,
@@ -80,10 +96,9 @@ const TaskSchema = mongoose.Schema(
       type: mongoose.Schema.Types.Date,
       default: null
     },
-    // board: [{ type: ObjectId, ref: 'Board' }],
-    column: {
+    page: {
       type: ObjectId,
-      ref: 'Column'
+      ref: 'Page'
     },
     archived: {
       type: Boolean,
@@ -95,15 +110,118 @@ const TaskSchema = mongoose.Schema(
   }
 )
 TaskSchema.pre('save', function(next) {
+  if (!this.reporter || new TypeObjectId(this.reporter) !== this.reporter) {
+    //* note can probably look for an user before we assume its an unassigned reporter
+    this.reporter = new TypeObjectId('6046b01ed5ca7434f7e2fbff')
+  }
+
+  if (
+    this.type === 'Epic' ||
+    this.type === 'Story' ||
+    this.type === 'Bug' ||
+    this.type === 'Theme'
+  ) {
+    switch (this.type) {
+      case 'Epic':
+        this.type = 'General'
+        break
+      case 'Story':
+        this.type = 'General'
+        break
+      case 'Bug':
+        this.type = 'Problem'
+        break
+      case 'Theme':
+        this.type = 'Theme'
+        break
+    }
+  }
+
+  if (!this.title || this.title.length < 1)
+    this.title = this.description.substring(0, 100)
   if (this.assignee) {
     User.findById(this.assignee, (err, user) => {
-      if (err) return console.log(err)
+      if (err) return err
       user.tasks.filter((task) => task.toString() !== this._id.toString())
       user.tasks.push(this._id)
       user.update()
     })
   }
+
+  if (this.board) {
+    Board.findOne({ _id: this.board }, (err, board) => {
+      if (err || !board) return err || 'No board found'
+      board.tasks = board.tasks.filter((t) => t !== this._id)
+      board.tasks.push(this._id)
+      board.save()
+    })
+  }
   next()
 })
+/**
+ * below is all the update logic
+ * handled before and after the
+ * task has been updated
+ */
+
+// pre-update logic
+TaskSchema.pre('update', function(next) {
+  // if (!this.type || this.type === '') this.type = 'General'
+  //* hack | to check for a valid mongo id you can cast the value to an object id
+  if (!this.reporter || new TypeObjectId(this.reporter) !== this.reporter) {
+    //* note can probably look for an user before we assume its an unassigned reporter
+    this.reporter = new TypeObjectId('6046b01ed5ca7434f7e2fbff')
+  }
+
+  if (
+    this.type === 'Epic' ||
+    this.type === 'Story' ||
+    this.type === 'Bug' ||
+    this.type === 'Theme'
+  ) {
+    switch (this.type) {
+      case 'Epic':
+        this.type = 'General'
+        break
+      case 'Story':
+        this.type = 'General'
+        break
+      case 'Bug':
+        this.type = 'Problem'
+        break
+      case 'Theme':
+        this.type = 'Theme'
+        break
+    }
+  }
+
+  // update board with task aswell
+  if (this.board) {
+    Board.findOne({ _id: this.board }, (err, board) => {
+      if (err || !board) return err || 'No board found'
+      board.tasks = board.tasks.filter((t) => t !== this._id)
+      board.tasks.push(this._id)
+      board.save()
+    })
+  }
+
+  // archived update
+  if (this.archived) {
+    Board.findOne({ _id: this.board }, (err, board) => {
+      if (err) return err
+      board.tasks = board.tasks.filter((t) => t !== this._id)
+      board.update()
+    })
+
+    User.findOne({ _id: this.assignee }, (err, user) => {
+      if (err) return err
+      user.tasks = user.tasks.filter((t) => t !== this._id)
+      user.update()
+    })
+  }
+  next()
+})
+// post-update logic
+TaskSchema.post('update', function(doc) {})
 module.exports =
   mongoose.models.Task || mongoose.model('Task', TaskSchema, 'tasks')

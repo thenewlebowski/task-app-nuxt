@@ -41,13 +41,13 @@
 </template>
 
 <script>
+import SiteChip from '@/components/chips/SiteChip'
+import TypeChip from '@/components/chips/TypeChip'
+import PriorityChip from '@/components/chips/PriorityChip'
+import PointsChip from '@/components/chips/PointsChip'
+import ReporterChip from '@/components/chips/ReporterChip'
 import TaskForm from './TaskForm'
 import ArchiveTaskModal from './ArchiveTaskModal'
-import SiteChip from './chips/SiteChip'
-import TypeChip from './chips/TypeChip'
-import PriorityChip from './chips/PriorityChip'
-import PointsChip from './chips/PointsChip'
-import ReporterChip from './chips/ReporterChip'
 
 export default {
   components: {

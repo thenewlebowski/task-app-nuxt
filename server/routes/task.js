@@ -5,7 +5,7 @@ const Task = require('../models/Task')
 const User = require('../models/User')
 const upload = require('../middleware/upload')
 const csvCont = require('../controllers/tasks/csv.controller')
-
+const Board = require('../models/Board')
 const transporter = nodemailer.createTransport(
   SPT({
     sparkPostApiKey: process.env.SPARKPOST_API_KEY
@@ -103,13 +103,17 @@ router
   .post('/', (req, res) => {
     const data = req.body
     const task = new Task(data)
+
     task
       .save()
       .then((newTask) => {
-        sendMail(
-          SITE_MANAGERS[newTask.site],
-          `A new ${newTask.site} task, "${newTask.title}", was posted on Gogrello and you are the ${newTask.site} site manager.`
-        )
+        if (SITE_MANAGERS[newTask.site]) {
+          sendMail(
+            SITE_MANAGERS[newTask.site],
+            `A new ${newTask.site} task, "${newTask.title}", was posted on Gogrello and you are the ${newTask.site} site manager.`
+          )
+        }
+
         res.status(200).json({ newTask })
       })
       .catch((err) => {
@@ -126,7 +130,6 @@ router
         const loggedInUser = req.session.user._id
         const assignee = User.findById(updatedTask.assignee)
         const reporter = User.findById(updatedTask.reporter)
-
         if (loggedInUser === assignee) {
           sendMail(
             reporter.email,
@@ -138,122 +141,100 @@ router
             `${reporter.firstName} updated the task ${updatedTask.title}`
           )
         }
-
-        res.status(200).json({ updatedTask })
+        return res.status(200).json({ updatedTask })
       })
       .catch((err) => {
-        res.status(500).json({ message: err.message })
+        return res.status(500).json({ message: err.message })
       })
   })
-  .put('/take', (req, res) => {
-    const { task } = req.body
+  .put('/take', async (req, res) => {
+    const { task, boardId, status } = req.body
     const { _id } = req.session.user
-    Task.findByIdAndUpdate(
+    await Board.findById(boardId, (err, board) => {
+      if (err || !board)
+        return res.status(500).json({ err, notFound: 'Board not found' })
+      board.tasks.push(task._id)
+      board.save()
+    })
+
+    await Task.findByIdAndUpdate(
       task._id,
-      { assignee: _id, status: 'To Do' },
+      { assignee: _id, status, board: boardId },
       { new: true }
     )
       .then((takenTask) => {
         const assignee = User.findById(takenTask.assignee)
         const reporter = User.findById(takenTask.reporter)
-
         sendMail(
           SITE_MANAGERS[takenTask.site],
           `${assignee.firstName} has taken the ${takenTask.site} task "${takenTask.title}" and you are the site manager for this task.`
         )
-        sendMail(
-          reporter.email,
-          `${assignee.firstName} has taken the task "${takenTask.title}" that you posted.`
-        )
-        res.status(200).json(takenTask)
+        if (reporter) {
+          sendMail(
+            reporter.email,
+            `${assignee.firstName} has taken the task "${takenTask.title}" that you posted.`
+          )
+        }
+        return res.status(200).json(takenTask)
       })
       .catch((err) => {
-        res.status(500).json({ message: err.message })
+        return res.status(500).json({ message: err.message })
       })
   })
   .put('/move', async (req, res) => {
-    const { originalTask, update } = req.body
-    let fromColumnTasks
-    let toColumnTasks
-    let updatedTask
-
-    try {
-      // updated the moved task
-      await Task.findByIdAndUpdate(originalTask._id, update, {
-        new: true
-      })
-        .then((task) => {
-          updatedTask = task
-
-          const assignee = User.findById(updatedTask.assignee)
-          const reporter = User.findById(updatedTask.reporter)
-
-          sendMail(
-            reporter.email,
-            `${assignee.firstName} has moved the task "${updatedTask.title}" from ${originalTask.status} to ${updatedTask.status}.`
-          )
-        })
-        .catch((err) => {
-          res.status(500).json({ message: err.message })
-        })
-      // change all toColumn tasks
-      await Task.find(
-        {
-          assignee: req.session.user._id,
-          status: update.status
-        },
-        (err, tasks) => {
-          if (err) {
-            res.status(500).json({ message: err.message })
-          }
-
-          tasks.sort((a, b) => a.index > b.index)
-          tasks.splice(updatedTask.index, 0, updatedTask)
-          tasks.forEach((task, i) => {
-            task.index = i
-            Task.update({ _id: task._id }, { index: i })
-          })
-
-          toColumnTasks = tasks
-        }
-      )
-      // change all fromColumn tasks
-      await Task.find(
-        {
-          assignee: req.session.user._id,
-          status: originalTask.status
-        },
-        (err, tasks) => {
-          if (err) {
-            res.status(500).json({ message: err.message })
-          }
-
-          tasks.sort((a, b) => a.index > b.index)
-          tasks.forEach((task, i) => {
-            task.index = 1
-            Task.update({ _id: task._id }, { index: i })
-          })
-
-          fromColumnTasks = tasks
-        }
-      )
-    } catch (err) {
-      res.status(500).json({ message: err.message })
-    } finally {
-      if (fromColumnTasks && toColumnTasks) {
-        res.status(200).json({
-          fromColumnTasks,
-          toColumnTasks,
-          fromColName: originalTask.status,
-          toColName: update.status
-        })
-      } else {
-        res.status(500).json({
-          message: 'fromColumnTasks or toColumnTasks undefined'
-        })
-      }
+    const { task, board } = req.body
+    // returned value
+    const tasks = {
+      board: board._id,
+      value: []
     }
+
+    // reassign all indexes
+    await board.tasks.forEach((task, index) =>
+      Task.findByIdAndUpdate(
+        task._id,
+        { index },
+        { new: true },
+        async (err, task) => {
+          if (err) return res.status(500).json({ message: err.message })
+          await tasks.value.push(task)
+        }
+      )
+    )
+
+    Task.findById(task._id, (err, task) => {
+      if (err || !task)
+        return res.status(500).json(err ? { err } : 'No task found')
+
+      // old board _id should be populated on the task itself
+      Board.findById(task.board, async function(err, oldBoard) {
+        if (err || !oldBoard) return err || 'No Old Board found'
+        oldBoard.tasks = await oldBoard.tasks.filter(
+          (id) => id.toString() !== task._id.toString()
+        )
+        oldBoard
+          .save()
+          .then(() => {
+            // update task to have the new board _id
+            task.board = board._id
+            task.status = board.title
+            task
+              .save()
+              .then(async (newTask) => {
+                await tasks.value.sort((a, b) => a.index - b.index)
+                return res.status(200).json({ tasks })
+              })
+              .catch((err) => {
+                return res.status(500).json({ err })
+              })
+          })
+          .catch((err) => {
+            return res.status(500).json({ err })
+          })
+      })
+    })
   })
+
   .post('/archive', (req, res) => {
     const { taskId } = req.body
 

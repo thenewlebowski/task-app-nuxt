@@ -102,11 +102,11 @@
           <v-col cols="12" sm="6">
             <v-select
               v-model="status"
-              :items="statusTypes"
+              :items="Object.values(boardKey)"
               :error-messages="statusErrors"
               @change="$v.status.$touch()"
               @blur="$v.status.$touch()"
-              label="Status*"
+              label="Status/ Board*"
               required
             />
           </v-col>
@@ -147,8 +147,7 @@ export default {
     type: { required },
     status: { required },
     site: { required },
-    points: { required },
-    reporter: { required }
+    points: { required }
   },
   data: () => ({
     title: '',
@@ -162,6 +161,7 @@ export default {
     priorityLevels: ['Lowest', 'Low', 'Medium', 'High', 'Highest'],
     types: ['Task', 'Problem', 'General', 'Styling'],
     statusTypes: ['To Do', 'In Progress', 'Done', 'Backlog'],
+    board: null,
     sites: [
       'Adams&Co',
       'CaseInPoint',
@@ -193,6 +193,15 @@ export default {
     submitStatus: null
   }),
   computed: {
+    // values
+    boardKey() {
+      return this.$store.getters['boards/getBoardKey']
+    },
+    nameKey() {
+      // switches name for id
+      return this.$store.getters['user/getUsersNameAndIdKey']
+    },
+    // errors
     titleErrors() {
       const errors = []
       if (!this.$v.title.$dirty) return errors
@@ -249,10 +258,6 @@ export default {
       if (!this.$v.reporter.$dirty) return errors
       !this.$v.reporter.required && errors.push('Reporter is required.')
       return errors
-    },
-    nameKey() {
-      // switches name for id
-      return this.$store.getters['user/getUsersNameAndIdKey']
     }
   },
   created() {
@@ -267,12 +272,23 @@ export default {
   },
   methods: {
     handleSubmit() {
-      if (!this.reporter) {
-        this.reporter = this.$auth.user._id
+      // board logic
+      if (!this.board) {
+        this.board = Object.keys(this.boardKey).filter(
+          (key) => this.boardKey[key] === this.status
+        )[0]
       }
+
+      // assignee logic
+      this.assigneeId = Object.keys(this.nameKey).filter(
+        (key) => this.nameKey[key] === this.assignee
+      )[0]
+
       this.$v.$touch()
-      if (this.$v.$error) return
-      // console.log('errors', this.$v)
+      if (this.$v.$error) {
+        console.log(this.$v)
+        return
+      }
       if (this.taskToEdit) {
         this.handleEditTask()
       } else {
@@ -289,15 +305,9 @@ export default {
         index: null,
         site: this.site,
         points: this.points,
-        assignee: Object.keys(this.nameKey).filter(
-          (key) => this.nameKey[key] === this.assignee
-        )[0]
+        assignee: this.assigneeId,
+        board: this.board
       }
-      // if (route === 'index') {
-      //   task.reporter = this.$auth.user._id
-      // } else if (route === 'browse') {
-      //   task.reporter = null
-      // }
 
       this.$store
         .dispatch('tasks/addTask', task)
@@ -321,16 +331,17 @@ export default {
           index: null,
           site: this.site,
           points: this.points,
-          assignee: Object.keys(this.nameKey).filter(
-            (key) => this.nameKey[key] === this.assignee
-          )[0]
+          assignee: this.assigneeId,
+          board: this.board
         },
-        taskId: this.taskToEdit._id
+        taskId: this.taskToEdit._id,
+        route: this.$route.name
       }
-
+      // console.log(payload)
       this.$store
         .dispatch('tasks/updateTask', payload)
         .then((res) => {
+          console.log(res)
           if (res.status !== 200) throw new Error(res)
           this.showSuccess()
           this.dialog = false

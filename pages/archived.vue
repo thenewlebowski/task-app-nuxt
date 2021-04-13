@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import TasksList from '@/components/TasksList'
+import TasksList from '@/components/task/TasksList'
 
 export default {
   name: 'AllPage',

@@ -53,7 +53,7 @@ export default {
   },
   data: () => ({
     drawer: null,
-    title: 'gogrello',
+    title: 'Gogrello',
     items: [
       {
         text: 'Mine',
