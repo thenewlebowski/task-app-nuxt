@@ -31,12 +31,18 @@
           </v-list-item-content>
         </v-list-item>
 
-        <v-card-actions>
+        <v-card-actions :style="{ 'justify-content': 'space-between' }">
           <TaskForm :task-to-edit="task" />
           <template>
             <v-menu max-width="600px">
               <template v-slot:activator="{ on, attrs }">
-                <v-btn v-bind="attrs" v-on="on" outlined text float-right
+                <v-btn
+                  v-bind="attrs"
+                  v-on="on"
+                  color="error"
+                  outlined
+                  text
+                  float-right
                   >Archive
                   <v-icon v-bind="attrs" v-on="on" right>
                     mdi-xamarin
