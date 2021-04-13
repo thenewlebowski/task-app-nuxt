@@ -238,16 +238,20 @@ router
   .post('/archive', (req, res) => {
     const { taskId } = req.body
 
-    Task.findByIdAndUpdate(taskId, { archived: true }, { new: true })
-      .then((archivedTask) => {
-        const assignee = User.findById(archivedTask.assignee)
-        const reporter = User.findById(archivedTask.reporter)
-
-        sendMail(
-          `${reporter.email}, ${assignee.email}`,
-          `The task "${archivedTask.title}" has been archived. This may be because it has been finised or it is no longer relevant. If you have any questions, contact ${req.session.user.firstName} at ${req.session.user.email} as he or she is the one who archived it.`
-        )
-        res.status(200).json({ archivedTask })
+    Task.findById(taskId)
+      .then((task) => {
+        task.archived = true
+        task.save().then((updated) => {
+          const assignee = User.findById(updated.assignee)
+          const reporter = User.findById(updated.reporter)
+          if (reporter && reporter.email) {
+            sendMail(
+              `${reporter.email}, ${assignee.email}`,
+              `The task "${updated.title}" has been archived. This may be because it has been finised or it is no longer relevant. If you have any questions, contact ${req.session.user.firstName} at ${req.session.user.email} as he or she is the one who archived it.`
+            )
+          }
+          res.status(200).json({ updated })
+        })
       })
       .catch((err) => {
         res.status(500).json({ message: err.message })

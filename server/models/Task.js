@@ -102,7 +102,7 @@ const TaskSchema = mongoose.Schema(
     },
     archived: {
       type: Boolean,
-      default: null
+      default: false
     }
   },
   {
@@ -148,12 +148,31 @@ TaskSchema.pre('save', function(next) {
     })
   }
 
-  if (this.board) {
-    Board.findOne({ _id: this.board }, (err, board) => {
+  if (this.board && !this.archived) {
+    Board.findOne({ _id: this.board }, async (err, board) => {
       if (err || !board) return err || 'No board found'
-      board.tasks = board.tasks.filter((t) => t !== this._id)
+      board.tasks = await board.tasks.filter((t) => t !== this._id)
       board.tasks.push(this._id)
       board.save()
+    })
+  }
+
+  // archived update
+  if (this.archived) {
+    Board.findOne({ _id: this.board }, async (err, board) => {
+      if (err) return err
+      board.tasks = await board.tasks.filter(
+        (t) => t.toString() !== this._id.toString()
+      )
+      board.save()
+    })
+
+    User.findOne({ _id: this.assignee }, async (err, user) => {
+      if (err) return err
+      user.tasks = await user.tasks.filter(
+        (t) => t.toString() !== this._id.toString()
+      )
+      user.save()
     })
   }
   next()
@@ -196,7 +215,7 @@ TaskSchema.pre('update', function(next) {
   }
 
   // update board with task aswell
-  if (this.board) {
+  if (this.board && !this.archived) {
     Board.findOne({ _id: this.board }, (err, board) => {
       if (err || !board) return err || 'No board found'
       board.tasks = board.tasks.filter((t) => t !== this._id)
@@ -207,16 +226,20 @@ TaskSchema.pre('update', function(next) {
 
   // archived update
   if (this.archived) {
-    Board.findOne({ _id: this.board }, (err, board) => {
+    Board.findOne({ _id: this.board }, async (err, board) => {
       if (err) return err
-      board.tasks = board.tasks.filter((t) => t !== this._id)
-      board.update()
+      board.tasks = await board.tasks.filter(
+        (t) => t.toString() !== this._id.toString()
+      )
+      board.save()
     })
 
-    User.findOne({ _id: this.assignee }, (err, user) => {
+    User.findOne({ _id: this.assignee }, async (err, user) => {
       if (err) return err
-      user.tasks = user.tasks.filter((t) => t !== this._id)
-      user.update()
+      user.tasks = await user.tasks.filter(
+        (t) => t.toString() !== this._id.toString()
+      )
+      user.save()
     })
   }
   next()
