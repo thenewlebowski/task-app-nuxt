@@ -58,12 +58,6 @@ export const mutations = {
     return payload
   },
   TAKE_TASK(state, takenTask) {
-    const toColName = takenTask.status
-    const tasks = state.columns[toColName].tasks
-    tasks.push(takenTask)
-
-    Vue.set(state.columns[toColName], 'tasks', tasks)
-
     state.unassigned = state.unassigned.filter(
       (task) => task._id !== takenTask._id
     )
@@ -158,8 +152,9 @@ export const actions = {
       return response
     })
   },
-  takeTask({ commit }, task) {
-    return axios.put('api/tasks/take', { task }).then((response) => {
+  takeTask({ commit }, payload) {
+    return axios.put('api/tasks/take', payload).then((response) => {
+      console.log(response)
       commit('TAKE_TASK', response.data)
     })
   },

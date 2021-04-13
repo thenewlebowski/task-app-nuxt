@@ -147,30 +147,38 @@ router
         return res.status(500).json({ message: err.message })
       })
   })
-  .put('/take', (req, res) => {
-    const { task } = req.body
+  .put('/take', async (req, res) => {
+    const { task, boardId, status } = req.body
     const { _id } = req.session.user
-    Task.findByIdAndUpdate(
+    await Board.findById(boardId, (err, board) => {
+      if (err || !board)
+        return res.status(500).json({ err, notFound: 'Board not found' })
+      board.tasks.push(task._id)
+      board.save()
+    })
+
+    await Task.findByIdAndUpdate(
       task._id,
-      { assignee: _id, status: 'To Do' },
+      { assignee: _id, status, board: boardId },
       { new: true }
     )
       .then((takenTask) => {
         const assignee = User.findById(takenTask.assignee)
         const reporter = User.findById(takenTask.reporter)
-
         sendMail(
           SITE_MANAGERS[takenTask.site],
           `${assignee.firstName} has taken the ${takenTask.site} task "${takenTask.title}" and you are the site manager for this task.`
         )
-        sendMail(
-          reporter.email,
-          `${assignee.firstName} has taken the task "${takenTask.title}" that you posted.`
-        )
-        res.status(200).json(takenTask)
+        if (reporter) {
+          sendMail(
+            reporter.email,
+            `${assignee.firstName} has taken the task "${takenTask.title}" that you posted.`
+          )
+        }
+        return res.status(200).json(takenTask)
       })
       .catch((err) => {
-        res.status(500).json({ message: err.message })
+        return res.status(500).json({ message: err.message })
       })
   })
   .put('/move', async (req, res) => {
