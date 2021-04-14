@@ -100,21 +100,33 @@ router
         res.status(500).json({ message: err.message })
       })
   })
-  .post('/', (req, res) => {
+  .post('/', async (req, res) => {
     const data = req.body
     const task = new Task(data)
-
-    task
+    let board = await Board.findOne({
+      title: data.status,
+      owner: data.assignee
+    })
+    if (!board) {
+      board = new Board()
+      board.owner = data.assignee
+      board.publicBoard = true
+      board.tasks = []
+      board.title = data.status
+      await board.save().then((newBoard) => (board = newBoard))
+    }
+    task.board = board._id
+    await task
       .save()
       .then((newTask) => {
+        const assignee = User.findById(newTask.assignee)
         if (SITE_MANAGERS[newTask.site]) {
           sendMail(
             SITE_MANAGERS[newTask.site],
-            `A new ${newTask.site} task, "${newTask.title}", was posted on Gogrello and you are the ${newTask.site} site manager.`
+            `${assignee.firstName} has taken the ${newTask.site} task "${newTask.title}" and you are the site manager for this task.`
           )
         }
-
-        res.status(200).json({ newTask })
+        return res.status(200).json({ task: newTask, board })
       })
       .catch((err) => {
         res.status(500).json({ message: err.message })

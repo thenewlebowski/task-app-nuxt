@@ -6,6 +6,11 @@ export const state = () => ({
 })
 
 export const mutations = {
+  // adds single task
+  ADD_TASK(state, data) {
+    state.boards[data.task.board].tasks.push(data.task)
+  },
+  // updates entire tasks array
   UPDATE_BOARD(state, data) {
     state.boards[data.board].tasks = data.value
   },
@@ -24,6 +29,10 @@ export const mutations = {
 }
 
 export const actions = {
+  addTask({ commit }, data) {
+    commit('ADD_TASK', data)
+    return data
+  },
   archiveTask({ commit }, data) {
     const board = this.state.boards.boards[data.board]
     board.tasks = board.tasks.filter(

@@ -286,7 +286,6 @@ export default {
 
       this.$v.$touch()
       if (this.$v.$error) {
-        console.log(this.$v)
         return
       }
       if (this.taskToEdit) {
@@ -306,7 +305,8 @@ export default {
         site: this.site,
         points: this.points,
         assignee: this.assigneeId,
-        board: this.board
+        board: this.board,
+        reporter: this.$auth.user._id
       }
 
       this.$store
@@ -337,11 +337,9 @@ export default {
         taskId: this.taskToEdit._id,
         route: this.$route.name
       }
-      // console.log(payload)
       this.$store
         .dispatch('tasks/updateTask', payload)
         .then((res) => {
-          console.log(res)
           if (res.status !== 200) throw new Error(res)
           this.showSuccess()
           this.dialog = false

@@ -150,10 +150,12 @@ TaskSchema.pre('save', function(next) {
 
   if (this.board && !this.archived) {
     Board.findOne({ _id: this.board }, async (err, board) => {
-      if (err || !board) return err || 'No board found'
-      board.tasks = await board.tasks.filter((t) => t !== this._id)
-      board.tasks.push(this._id)
-      board.save()
+      if (err) return err
+      if (board) {
+        board.tasks = await board.tasks.filter((t) => t !== this._id)
+        await board.tasks.push(this._id)
+        board.save()
+      }
     })
   }
 
@@ -217,10 +219,12 @@ TaskSchema.pre('update', function(next) {
   // update board with task aswell
   if (this.board && !this.archived) {
     Board.findOne({ _id: this.board }, (err, board) => {
-      if (err || !board) return err || 'No board found'
-      board.tasks = board.tasks.filter((t) => t !== this._id)
-      board.tasks.push(this._id)
-      board.save()
+      if (err) return err
+      if (board) {
+        board.tasks = board.tasks.filter((t) => t !== this._id)
+        board.tasks.push(this._id)
+        board.save()
+      }
     })
   }
 

@@ -25,15 +25,31 @@ export const mutations = {
   SET_TASK(state, task) {
     state.task = task
   },
-  ADD_TASK(state, task) {
-    if (task.assignee === this.$auth.user._id) {
-      const column = state.columns[task.status]
-      column.tasks.push(task)
-
-      Vue.set(state.columns, task.status, column)
-    } else {
-      state.unassigned.push(task)
+  ADD_TASK(state, data) {
+    state.index = state.index.filter(
+      (t) => t.toString() !== data.task._id.toString()
+    )
+    state.index.push(data.task)
+    if (
+      data.task.assignee &&
+      this.$auth.user._id.toString() === data.task.assignee.toString()
+    ) {
+      this.dispatch('boards/addTask', data)
+        .then((res) => {
+          return res
+        })
+        .catch((err) => {
+          return err
+        })
     }
+    // if (task.assignee === this.$auth.user._id) {
+    //   const column = state.columns[task.status]
+    //   column.tasks.push(task)
+
+    //   Vue.set(state.columns, task.status, column)
+    // } else {
+    //   state.unassigned.push(task)
+    // }
   },
   UPDATE_TASK(state, task) {
     state[task.route] = state[task.route].filter(
@@ -139,8 +155,8 @@ export const actions = {
   //     })
   // },
   addTask({ commit }, task) {
-    return axios.post('api/tasks', task).then((response) => {
-      commit('ADD_TASK', response.data.newTask)
+    return axios.post('api/tasks', task).then(function(response) {
+      commit('ADD_TASK', response.data)
       return response
     })
   },
@@ -164,13 +180,11 @@ export const actions = {
   },
   takeTask({ commit }, payload) {
     return axios.put('api/tasks/take', payload).then((response) => {
-      console.log(response)
       commit('TAKE_TASK', response.data)
     })
   },
   archiveTask({ commit }, taskId) {
     return axios.post('api/tasks/archive', { taskId }).then((response) => {
-      console.log(response)
       commit('ARCHIVE_TASK', response.data.updated)
       return response
     })

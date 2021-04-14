@@ -7,6 +7,7 @@ const BoardSchema = mongoose.Schema(
   {
     color: {
       type: String,
+      default: '#3F51B5',
       required: true
     },
     index: {
