@@ -9,6 +9,15 @@ export const mutations = {
   // adds single task
   ADD_TASK(state, data) {
     state.boards[data.task.board].tasks.push(data.task)
+    return state
+  },
+  // removes single task
+  REMOVE_TASK(state, data) {
+    const oldBoardId = data.oldBoard._id.toString()
+    state.boards[oldBoardId].tasks = state.boards[oldBoardId].tasks.filter(
+      (t) => t._id.toString() !== data.task._id.toString()
+    )
+    return state
   },
   // updates entire tasks array
   UPDATE_BOARD(state, data) {
@@ -29,6 +38,11 @@ export const mutations = {
 }
 
 export const actions = {
+  updateTask({ commit }, data) {
+    commit('REMOVE_TASK', data)
+    commit('ADD_TASK', data)
+    return data
+  },
   addTask({ commit }, data) {
     commit('ADD_TASK', data)
     return data

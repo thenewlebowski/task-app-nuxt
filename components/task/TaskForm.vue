@@ -272,13 +272,6 @@ export default {
   },
   methods: {
     handleSubmit() {
-      // board logic
-      if (!this.board) {
-        this.board = Object.keys(this.boardKey).filter(
-          (key) => this.boardKey[key] === this.status
-        )[0]
-      }
-
       // assignee logic
       this.assigneeId = Object.keys(this.nameKey).filter(
         (key) => this.nameKey[key] === this.assignee
@@ -288,6 +281,13 @@ export default {
       if (this.$v.$error) {
         return
       }
+      // board logic
+      if (this.assigneeId.toString() === this.$auth.user._id.toString()) {
+        this.board = Object.keys(this.boardKey).filter(
+          (key) => this.boardKey[key] === this.status
+        )[0]
+      }
+
       if (this.taskToEdit) {
         this.handleEditTask()
       } else {
@@ -315,6 +315,7 @@ export default {
           if (res.status !== 200) throw new Error(res)
           this.showSuccess()
           this.dialog = false
+          this.clear()
         })
         .catch(() => {
           this.showError()
@@ -328,7 +329,6 @@ export default {
           priority: this.priority,
           type: this.type,
           status: this.status,
-          index: null,
           site: this.site,
           points: this.points,
           assignee: this.assigneeId,
@@ -337,12 +337,14 @@ export default {
         taskId: this.taskToEdit._id,
         route: this.$route.name
       }
+
       this.$store
         .dispatch('tasks/updateTask', payload)
         .then((res) => {
           if (res.status !== 200) throw new Error(res)
           this.showSuccess()
           this.dialog = false
+          // this.clear()
         })
         .catch(() => {
           this.showError()
@@ -350,16 +352,14 @@ export default {
     },
     clear() {
       this.$v.$reset()
-      this.task = {
-        title: '',
-        description: '',
-        priority: '',
-        type: '',
-        status: '',
-        points: 10,
-        assignee: '',
-        reporter: ''
-      }
+      this.title = ''
+      this.description = ''
+      this.priority = ''
+      this.type = ''
+      this.status = ''
+      this.points = 10
+      this.assignee = ''
+      this.reporter = ''
 
       this.dialog = false
     }

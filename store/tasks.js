@@ -163,9 +163,12 @@ export const actions = {
   updateTask({ commit }, payload) {
     const { route } = payload
     return axios.put('api/tasks', payload).then((response) => {
-      const task = response.data.updatedTask
-      task.route = route
-      commit('UPDATE_TASK', task)
+      const data = response.data
+      data.task.route = route
+      commit('UPDATE_TASK', data.task)
+      if (data.task.board.toString() !== data.oldBoard._id.toString()) {
+        this.dispatch('boards/updateTask', response.data)
+      }
       return response
     })
   },

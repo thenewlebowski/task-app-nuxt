@@ -12,6 +12,26 @@ const transporter = nodemailer.createTransport(
   })
 )
 
+const removeTask = (oldBoardId, taskId) => {
+  const promise = new Promise(function(resolve, reject) {
+    Board.findById(oldBoardId, async function(err, oldBoard) {
+      if (err || !oldBoard) return err || 'No Old Board found'
+      oldBoard.tasks = await oldBoard.tasks.filter(
+        (id) => id.toString() !== taskId.toString()
+      )
+      oldBoard
+        .save()
+        .then(() => {
+          resolve(oldBoard)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  })
+  return promise
+}
+
 const sendMail = (to, message) => {
   transporter.sendMail(
     {
@@ -137,23 +157,34 @@ router
     // if (!req.user.tasks.includes(taskId)) {
     //     return res.status(401).json({ message: 'You dont own that task' })
     // }
-    Task.findByIdAndUpdate(taskId, update, { new: true })
-      .then((updatedTask) => {
-        const loggedInUser = req.session.user._id
-        const assignee = User.findById(updatedTask.assignee)
-        const reporter = User.findById(updatedTask.reporter)
-        if (loggedInUser === assignee) {
-          sendMail(
-            reporter.email,
-            `${assignee.firstName} updated the task ${updatedTask.title}`
-          )
-        } else if (loggedInUser === reporter) {
-          sendMail(
-            assignee.email,
-            `${reporter.firstName} updated the task ${updatedTask.title}`
-          )
-        }
-        return res.status(200).json({ updatedTask })
+    Task.findById(taskId)
+      .then((task) => {
+        removeTask(task.board, task._id)
+          .then((oldBoard) => {
+            for (const [key, value] of Object.entries(update)) {
+              task[key] = value
+            }
+            task.save().then((newTask) => {
+              const loggedInUser = req.session.user._id
+              const assignee = User.findById(newTask.assignee)
+              const reporter = User.findById(newTask.reporter)
+              if (assignee && loggedInUser === assignee) {
+                sendMail(
+                  reporter.email,
+                  `${assignee.firstName} updated the task ${task.title}`
+                )
+              } else if (reporter && loggedInUser === reporter) {
+                sendMail(
+                  assignee.email,
+                  `${reporter.firstName} updated the task ${task.title}`
+                )
+              }
+              return res.status(200).json({ task, oldBoard })
+            })
+          })
+          .catch((err) => {
+            return res.status(500).json({ err })
+          })
       })
       .catch((err) => {
         return res.status(500).json({ message: err.message })
@@ -219,31 +250,24 @@ router
         return res.status(500).json(err ? { err } : 'No task found')
 
       // old board _id should be populated on the task itself
-      Board.findById(task.board, async function(err, oldBoard) {
-        if (err || !oldBoard) return err || 'No Old Board found'
-        oldBoard.tasks = await oldBoard.tasks.filter(
-          (id) => id.toString() !== task._id.toString()
-        )
-        oldBoard
-          .save()
-          .then(() => {
-            // update task to have the new board _id
-            task.board = board._id
-            task.status = board.title
-            task
-              .save()
-              .then(async (newTask) => {
-                await tasks.value.sort((a, b) => a.index - b.index)
-                return res.status(200).json({ tasks })
-              })
-              .catch((err) => {
-                return res.status(500).json({ err })
-              })
-          })
-          .catch((err) => {
-            return res.status(500).json({ err })
-          })
-      })
+      removeTask(task.board, task._id)
+        .then((oldBoard) => {
+          // update task to have the new board _id
+          task.board = board._id
+          task.status = board.title
+          task
+            .save()
+            .then(async (newTask) => {
+              await tasks.value.sort((a, b) => a.index - b.index)
+              return res.status(200).json({ tasks })
+            })
+            .catch((err) => {
+              return res.status(500).json({ err })
+            })
+        })
+        .catch((err) => {
+          return res.status(500).json({ err })
+        })
     })
   })
 
