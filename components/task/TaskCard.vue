@@ -3,7 +3,10 @@
     <v-card @click="taskView = true" class="mx-auto" max-width="344" outlined>
       <v-list-item three-line>
         <v-list-item-content>
-          <div v-text="task.priority" class="overline mb-4"></div>
+          <div>
+            <div v-text="task.priority" class="overline mb-5 d-inline"></div>
+            <div v-text="task.site" class="overline d-inline float-right" />
+          </div>
           <v-list-item-title v-text="task.title" class="headline mb-1" />
           <v-list-item-subtitle v-text="task.description" />
         </v-list-item-content>
