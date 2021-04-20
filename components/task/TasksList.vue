@@ -1,6 +1,6 @@
 <template>
   <v-card>
-    <v-toolbar color="blue-grey">
+    <v-toolbar color="#385F73">
       <v-toolbar-title>
         {{ title }}
       </v-toolbar-title>

@@ -1,21 +1,23 @@
 <template>
-  <div class="d-flex flex-row">
-    <div v-for="board in boards" :key="board._id">
-      <Board :board="board" />
-    </div>
-    <div>
-      <v-card v-if="!loading" width="360" class="mx-1">
-        <v-app-bar color="blue-grey">
-          <v-toolbar-title v-text="'Add New Board'" />
-          <v-chip class="ma-2" color="green" text-color="white">New</v-chip>
-          <div class="flex-grow-1"></div>
-        </v-app-bar>
-        <v-container>
-          <li class="add-board">
-            <BoardForm />
-          </li>
-        </v-container>
-      </v-card>
+  <div>
+    <!-- <SearchHeader /> -->
+    <div class="d-flex flex-row my-3">
+      <div v-for="board in boards" :key="board._id">
+        <Board :board="board" />
+      </div>
+      <div>
+        <v-card v-if="!loading" width="360" class="mx-1">
+          <v-app-bar color="#2F929D">
+            <v-toolbar-title v-text="'Add New Board'" />
+            <div class="flex-grow-1"></div>
+          </v-app-bar>
+          <v-container>
+            <li class="add-board">
+              <BoardForm />
+            </li>
+          </v-container>
+        </v-card>
+      </div>
     </div>
   </div>
 </template>
@@ -23,12 +25,14 @@
 <script>
 import Vue from 'vue'
 import BoardForm from '@/components/board/BoardForm'
+import SearchHeader from '@/components/page/SearchHeader'
 import Board from './board/Board'
 
 export default {
   components: {
     Board,
-    BoardForm
+    BoardForm,
+    SearchHeader
   },
   props: {
     userId: {
@@ -66,6 +70,17 @@ export default {
 }
 </script>
 <style scoped>
+.custom-container {
+  position: absolute;
+  /* width: max-content; */
+  left: 0;
+}
+.page-header {
+  display: inline;
+  width: max-content;
+  position: sticky;
+  left: 0;
+}
 .add-board {
   cursor: pointer;
   height: 100px;

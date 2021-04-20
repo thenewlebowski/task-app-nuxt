@@ -11,7 +11,7 @@
             hide-default-footer
         >
             <template v-slot:header>
-                <v-toolbar dark color="blue-grey darken-3" class="mb-1">
+                <v-toolbar dark color="#385F73 darken-3" class="mb-1">
                     <v-text-field
                         v-model="search"
                         clearable
@@ -38,7 +38,7 @@
                                 :value="false"
                                 large
                                 depressed
-                                color="blue-grey"
+                                color="#385F73"
                             >
                                 <v-icon>mdi-arrow-up</v-icon>
                             </v-btn>
@@ -46,7 +46,7 @@
                                 :value="true"
                                 large
                                 depressed
-                                color="blue-grey"
+                                color="#385F73"
                             >
                                 <v-icon>mdi-arrow-down</v-icon>
                             </v-btn>
@@ -75,7 +75,7 @@
                                 v-on="on"
                                 dark
                                 text
-                                color="blue-grey"
+                                color="#385F73"
                                 class="ml-2"
                             >
                                 {{ tasksPerPage }}
@@ -107,7 +107,7 @@
                         @click="formerPage"
                         fab
                         dark
-                        color="blue-grey darken-3"
+                        color="#385F73 darken-3"
                         class="mr-1"
                     >
                         <v-icon>mdi-chevron-left</v-icon>
@@ -116,7 +116,7 @@
                         @click="nextPage"
                         fab
                         dark
-                        color="blue-grey darken-3"
+                        color="#385F73 darken-3"
                         class="ml-1"
                     >
                         <v-icon>mdi-chevron-right</v-icon>

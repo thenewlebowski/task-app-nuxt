@@ -11,7 +11,7 @@
     <!--                        v-for="(key, index) in filteredKeys"-->
     <!--                        :key="index"-->
     <!--                        :color="-->
-    <!--                            sortBy === key ? `blue-grey lighten-4` : `white`-->
+    <!--                            sortBy === key ? `#385F73 lighten-4` : `white`-->
     <!--                        "-->
     <!--                    >-->
     <!--                        <v-list-item-content>{{ key }}:</v-list-item-content>-->
