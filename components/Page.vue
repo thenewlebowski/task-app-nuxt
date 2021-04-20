@@ -4,7 +4,7 @@
       <Board :board="board" />
     </div>
     <div>
-      <v-card width="360" class="mx-1">
+      <v-card v-if="!loading" width="360" class="mx-1">
         <v-app-bar color="blue-grey">
           <v-toolbar-title v-text="'Add New Board'" />
           <v-chip class="ma-2" color="green" text-color="white">New</v-chip>
@@ -30,8 +30,14 @@ export default {
     Board,
     BoardForm
   },
+  props: {
+    userId: {
+      type: String,
+      default: null
+    }
+  },
   data() {
-    return { boards: {} }
+    return { boards: {}, loading: true }
   },
   computed: {},
   async created() {
@@ -41,8 +47,9 @@ export default {
       }
     })
     await this.$store.dispatch('tasks/fetchCurrent')
-    await this.$store.dispatch('boards/fetchBoards')
+    await this.$store.dispatch('boards/fetchBoards', this.userId)
     await this.$store.dispatch('user/fetchUsers')
+    this.loading = false
     this.tasks = this.$store.getters['tasks/getCurrent']
   },
   beforeDestroy() {
