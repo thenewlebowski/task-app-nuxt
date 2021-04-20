@@ -33,7 +33,7 @@
             </v-card-actions>
           </v-card>
         </v-col>
-        <v-col v-for="(user, i) in users" :key="i" cols="3">
+        <v-col v-for="(user, i) in users" :key="i" cols="12" lg="4">
           <v-card>
             <v-app-bar>
               <v-btn @click="profile(user._id)" rounded>
@@ -44,14 +44,9 @@
                 <v-card-title
                   v-if="user.firstName && user.lastName"
                   v-text="`${user.firstName} ${user.lastName}`"
-                  class="text-h5"
                 >
                 </v-card-title>
-                <v-card-title
-                  v-else
-                  v-text="user.username"
-                  class="text-h5"
-                ></v-card-title>
+                <v-card-title v-else v-text="user.username"></v-card-title>
               </v-btn>
             </v-app-bar>
           </v-card>
