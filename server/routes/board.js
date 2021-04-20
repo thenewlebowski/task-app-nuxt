@@ -6,7 +6,15 @@ router
   // returns all boards
   .post('/', (req, res, next) => {
     const _id = req.body._id
-    Board.find({ owner: _id })
+    const query = {
+      owner: _id
+    }
+
+    if (_id.toString() !== req.session.user._id.toString()) {
+      query.publicBoard = true
+    }
+
+    Board.find(query)
       .populate({
         path: 'tasks',
         options: {
