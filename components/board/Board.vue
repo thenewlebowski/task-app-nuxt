@@ -104,6 +104,9 @@ export default {
     handleMoveTask(evt) {
       if (evt.added || evt.moved) {
         const { element, newIndex } = evt.added || evt.moved
+        if (element.assignee.toString() !== this.$auth.user._id.toString()) {
+          return this.showMoveError()
+        }
         element.index = newIndex
         const payload = {
           task: element,
