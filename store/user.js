@@ -11,7 +11,9 @@ export const mutations = {
     state.user = user
   },
   SET_USERS(state, users) {
-    state.allUsers = users
+    state.allUsers = users.filter(
+      (u) => u.username.toUpperCase() !== 'UNASSIGNED'
+    )
   },
   CREATE_USERS_NAME_AND_ID_KEY(state, users) {
     const key = {}
@@ -76,6 +78,9 @@ export const actions = {
 }
 
 export const getters = {
+  getUsers(state) {
+    return state.allUsers
+  },
   usersNotFetched(state) {
     return state.allUsers.length === 0
   },

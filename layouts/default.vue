@@ -13,7 +13,12 @@
               <v-icon>{{ item.icon }}</v-icon>
             </v-list-item-action>
             <v-list-item-content>
-              <v-list-item-title>{{ item.text }}</v-list-item-title>
+              <v-list-item-title class="d-flex align-items-center"
+                >{{ item.text
+                }}<v-chip v-if="item.new" color="success"
+                  ><v-icon small>mdi-alert-decagram</v-icon>New
+                </v-chip></v-list-item-title
+              >
             </v-list-item-content>
           </v-list-item>
         </v-list>
@@ -76,6 +81,12 @@ export default {
         route: '/archived'
       },
       {
+        text: 'Page search',
+        icon: 'mdi-account-search',
+        route: '/page-search',
+        new: true
+      },
+      {
         text: 'Settings',
         icon: 'mdi-settings',
         route: '/settings'
@@ -104,5 +115,10 @@ html {
   position: absolute;
   bottom: 0;
   top: 0;
+}
+.v-list-item__title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 </style>

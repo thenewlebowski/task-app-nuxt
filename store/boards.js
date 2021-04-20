@@ -59,17 +59,22 @@ export const actions = {
     commit('UPDATE_BOARD', data)
     return data
   },
-  fetchBoards({ commit }) {
-    const _id = this.$auth.user._id
-    return axios.get('api/boards', { _id }).then((res) => {
-      commit('SET_BOARDS', res.data)
-      commit('SET_BOARD_KEY', res.data)
-    })
+  fetchBoards({ commit }, _id = null) {
+    _id = _id || this.$auth.user._id
+    return axios
+      .post('/api/boards', { _id })
+      .then((res) => {
+        commit('SET_BOARDS', res.data)
+        commit('SET_BOARD_KEY', res.data)
+      })
+      .catch((err) => {
+        return err
+      })
   },
 
   createBoard({ commit }, data) {
     return axios
-      .post('api/boards', data)
+      .post('/api/boards/create', data)
       .then((res) => {
         commit('SET_BOARDS', [res.data])
         return res

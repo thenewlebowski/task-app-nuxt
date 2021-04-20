@@ -4,8 +4,8 @@ const Board = require('../models/Board')
 router
   .use('/boards', router)
   // returns all boards
-  .get('/', (req, res, next) => {
-    const { _id } = req.session.user
+  .post('/', (req, res, next) => {
+    const _id = req.body._id
     Board.find({ owner: _id })
       .populate({
         path: 'tasks',
@@ -21,7 +21,7 @@ router
         return res.status(200).json(boards)
       })
   })
-  .post('/', (req, res, next) => {
+  .post('/create', (req, res, next) => {
     Board.create(req.body, (err, board) => {
       if (err) return next(err)
       return res.status(200).json(board)
