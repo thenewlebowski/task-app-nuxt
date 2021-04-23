@@ -3,7 +3,7 @@
 export const state = () => ({
   user: null,
   allUsers: [],
-  usersNameAndIdKey: {}
+  idKey: {}
 })
 
 export const mutations = {
@@ -20,11 +20,14 @@ export const mutations = {
 
     users.forEach((user) => {
       if (user.firstName && user.lastName) {
-        key[user._id] = `${user.firstName} ${user.lastName}`
-      } else key[user._id] = user.username
+        key[user._id] = {
+          username: `${user.firstName} ${user.lastName}`,
+          _id: user._id
+        }
+      } else key[user._id] = { username: user.username, _id: user._id }
     })
 
-    state.usersNameAndIdKey = key
+    state.idKey = key
   },
   ADD_USER(state, user) {
     state.user = user
@@ -85,6 +88,6 @@ export const getters = {
     return state.allUsers.length === 0
   },
   getUsersNameAndIdKey(state) {
-    return state.usersNameAndIdKey
+    return state.idKey
   }
 }

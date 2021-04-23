@@ -6,12 +6,39 @@ export const state = () => ({
   unassigned: [], // all unassigned tasks
   assigned: [], // all assigned tasks
   archived: [], // all archived tasks
-  index: [] // all index users tasks
+  index: [], // all index users tasks
+  sites: [
+    'Adams&Co',
+    'CaseInPoint',
+    'Confluence',
+    'Connectship',
+    'CowboyLiving',
+    'CraftDirect',
+    'MonkeyWrench',
+    'PlumbersStock',
+    'Typhoeus',
+    'Rayie',
+    'SWPlumbing',
+    'SupplyExchange',
+    'Third Party',
+    'Uncategorized',
+    'General',
+    'IT Task',
+    'Marketplace',
+    'Wiser',
+    'Strikeaprice',
+    'TCGM',
+    'WIT',
+    'Google Express',
+    'MowRo',
+    'Alarm dot com'
+  ] // all sites unique and original
 })
 
 export const mutations = {
   SET_TASKS(state, tasks) {
     state.index = tasks
+    this.dispatch('varieties/setState', state.index)
   },
   SET_UNASSIGNED_TASKS(state, tasks) {
     state.unassigned = tasks
@@ -213,5 +240,8 @@ export const getters = {
   },
   getArchivedTasks(state) {
     return state.archived
+  },
+  getSites(state) {
+    return state.sites
   }
 }

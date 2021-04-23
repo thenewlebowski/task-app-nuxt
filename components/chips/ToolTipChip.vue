@@ -26,6 +26,18 @@ export default {
       type: Boolean,
       default: false
     },
+    bottom: {
+      type: Boolean,
+      default: false
+    },
+    right: {
+      type: Boolean,
+      default: false
+    },
+    top: {
+      type: Boolean,
+      default: false
+    },
     width: {
       type: String || Number,
       default: ''

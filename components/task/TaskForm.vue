@@ -96,7 +96,10 @@
               :error-messages="assigneeErrors"
               @change="$v.assignee.$touch()"
               @blur="$v.assignee.$touch()"
+              item-text="username"
+              item-value="key"
               label="Assignee"
+              return-object
             />
           </v-col>
           <v-col cols="12" sm="6">
@@ -149,49 +152,26 @@ export default {
     site: { required },
     points: { required }
   },
-  data: () => ({
-    title: '',
-    description: '',
-    priority: 'Lowest',
-    type: 'Task',
-    site: 'PlumbersStock',
-    points: 10,
-    status: 'To Do',
-    assignee: 'Unassigned Tasks',
-    priorityLevels: ['Lowest', 'Low', 'Medium', 'High', 'Highest'],
-    types: ['Task', 'Problem', 'General', 'Styling'],
-    statusTypes: ['To Do', 'In Progress', 'Done', 'Backlog'],
-    board: null,
-    sites: [
-      'Adams&Co',
-      'CaseInPoint',
-      'Confluence',
-      'Connectship',
-      'CowboyLiving',
-      'CraftDirect',
-      'MonkeyWrench',
-      'PlumbersStock',
-      'Typhoeus',
-      'Rayie',
-      'SWPlumbing',
-      'SupplyExchange',
-      'Third Party',
-      'Uncategorized',
-      'General',
-      'IT Task',
-      'Marketplace',
-      'Wiser',
-      'Strikeaprice',
-      'TCGM',
-      'WIT',
-      'Google Express',
-      'MowRo',
-      'Alarm dot com'
-    ],
-    dialog: false,
-    error: null,
-    submitStatus: null
-  }),
+  data() {
+    return {
+      title: '',
+      description: '',
+      priority: 'Lowest',
+      type: 'Task',
+      site: 'PlumbersStock',
+      points: 10,
+      status: 'To Do',
+      assignee: 'Unassigned Tasks',
+      priorityLevels: ['Lowest', 'Low', 'Medium', 'High', 'Highest'],
+      types: ['Task', 'Problem', 'General', 'Styling'],
+      statusTypes: ['To Do', 'In Progress', 'Done', 'Backlog'],
+      board: null,
+      sites: this.$store.state.tasks.sites,
+      dialog: false,
+      error: null,
+      submitStatus: null
+    }
+  },
   computed: {
     // values
     boardKey() {
@@ -273,9 +253,7 @@ export default {
   methods: {
     handleSubmit() {
       // assignee logic
-      this.assigneeId = Object.keys(this.nameKey).filter(
-        (key) => this.nameKey[key] === this.assignee
-      )[0]
+      if (this.assignee) this.assigneeId = this.assignee.key
 
       this.$v.$touch()
       if (this.$v.$error) {

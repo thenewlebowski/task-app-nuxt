@@ -68,6 +68,33 @@ export default {
     }
   }
 }
+//   data() {
+//     return { boards: {} }
+//   },
+//   computed: {},
+//   async created() {
+//     this.unsubscribe = this.$store.subscribe((action, state) => {
+//       if (action.type === 'boards/SET_BOARDS') {
+//         this.updateBoards(action.payload)
+//       }
+//     })
+//     await this.$store.dispatch('tasks/fetchCurrent')
+//     await this.$store.dispatch('boards/fetchBoards')
+//     await this.$store.dispatch('user/fetchUsers')
+//     this.tasks = this.$store.getters['tasks/getCurrent']
+//   },
+//   beforeDestroy() {
+//     this.unsubscribe()
+//   },
+
+//   methods: {
+//     updateBoards(payload) {
+//       payload.forEach((board, i) => {
+//         Vue.set(this.boards, board._id, board)
+//       })
+//     }
+//   }
+// }
 </script>
 <style scoped>
 .custom-container {

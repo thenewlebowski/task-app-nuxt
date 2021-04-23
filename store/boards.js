@@ -1,6 +1,8 @@
 import axios from 'axios'
+// import Vue from 'vue'
 
 export const state = () => ({
+  unfiltered: {},
   boards: {},
   boardKey: {}
 })
@@ -29,15 +31,74 @@ export const mutations = {
     return (state.boardKey = key)
   },
   // creates object that we can refer to for department _ids
-  SET_BOARDS(state, boards) {
-    boards.forEach((board) => {
+  async SET_BOARDS(state, boards) {
+    // await delete state.boards
+    // Vue.set(state.boards, null, {})
+    await boards.forEach((board) => {
       state.boards[board._id.toString()] = board
     })
+    // have a copy of the orignal unfiltered boards
+    state.unfiltered = JSON.parse(JSON.stringify(state.boards))
     return state
+  },
+  SEARCH_BOARDS(state, data) {
+    Object.keys(state.unfiltered).map((_id) => {
+      const set = state.unfiltered[_id].tasks
+      const tasks = {}
+      for (const [prop, value] of Object.entries(data)) {
+        if (!value) continue
+        set.filter((task) => {
+          if (
+            task[prop.toString()]
+              .toUpperCase()
+              .includes(value.toString().toUpperCase())
+          )
+            tasks[task._id] = task
+        })
+      }
+      const payload = {
+        board: _id,
+        value: Object.values(tasks)
+      }
+
+      this.dispatch('boards/updateBoard', payload)
+    })
+  },
+  FILTER_BOARDS(state, data) {
+    const boards = JSON.parse(JSON.stringify(state.unfiltered))
+    for (const [boardId] of Object.entries(state.unfiltered)) {
+      let set = boards[boardId].tasks
+      for (const [prop, filter] of Object.entries(data)) {
+        if (!filter) continue
+        set = set.filter((task) => {
+          const property = task[prop.toString()]
+          if (
+            property &&
+            property.toUpperCase() === filter.toString().toUpperCase()
+          )
+            return true
+        })
+      }
+      const payload = {
+        board: boardId,
+        value: set
+      }
+      this.dispatch('boards/updateBoard', payload)
+    }
   }
 }
 
 export const actions = {
+  searchBoards({ commit }, data) {
+    commit('SEARCH_BOARDS', data)
+  },
+  resetFilter({ commit }) {
+    commit('SET_BOARDS', Object.values(this.state.boards.unfiltered))
+  },
+  filterBoards({ commit }, data) {
+    commit('FILTER_BOARDS', data)
+    return data
+  },
   updateTask({ commit }, data) {
     commit('REMOVE_TASK', data)
     commit('ADD_TASK', data)

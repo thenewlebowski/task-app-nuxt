@@ -123,7 +123,8 @@ export default {
       }
     },
     getReporterName(id) {
-      return this.$store.getters['user/getUsersNameAndIdKey'][id]
+      const user = this.$store.getters['user/getUsersNameAndIdKey'][id]
+      return user ? user.username : 'None'
     }
   }
 }
