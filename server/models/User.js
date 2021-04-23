@@ -4,6 +4,11 @@ const ObjectId = mongoose.Schema.Types.ObjectId
 
 const UserSchema = mongoose.Schema(
   {
+    admin: {
+      type: Boolean,
+      default: false,
+      required: true
+    },
     username: {
       type: String,
       // required: true,

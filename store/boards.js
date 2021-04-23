@@ -32,6 +32,7 @@ export const mutations = {
   },
   // creates object that we can refer to for department _ids
   async SET_BOARDS(state, boards) {
+    state.boards = Object()
     // await delete state.boards
     // Vue.set(state.boards, null, {})
     await boards.forEach((board) => {
@@ -103,6 +104,21 @@ export const actions = {
     commit('REMOVE_TASK', data)
     commit('ADD_TASK', data)
     return data
+  },
+  fetchReported({ commit }) {
+    this.$axios
+      .get('/api/boards/reported')
+      .then(async (res) => {
+        if (Object.keys(this.state.user.idKey).length < 1)
+          await this.dispatch('user/fetchUsers')
+        const data = await res.data.map((board) => {
+          const user = this.state.user.idKey[board._id.toString()]
+          board.title = user ? user.username : 'Unassigned'
+          return board
+        })
+        commit('SET_BOARDS', data)
+      })
+      .catch((err) => err)
   },
   addTask({ commit }, data) {
     commit('ADD_TASK', data)

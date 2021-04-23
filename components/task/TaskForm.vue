@@ -253,21 +253,30 @@ export default {
   methods: {
     handleSubmit() {
       // assignee logic
-      if (this.assignee) this.assigneeId = this.assignee.key
+      if (this.assignee) this.assigneeId = this.assignee._id
 
       this.$v.$touch()
       if (this.$v.$error) {
         return
       }
       // board logic
-      if (this.assigneeId.toString() === this.$auth.user._id.toString()) {
-        this.board = Object.keys(this.boardKey).filter(
-          (key) => this.boardKey[key] === this.status
-        )[0]
-      }
+      this.board = Object.keys(this.boardKey).filter(
+        (key) => this.boardKey[key] === this.status
+      )[0]
 
       if (this.taskToEdit) {
-        this.handleEditTask()
+        if (!this.taskToEdit.reporter)
+          this.taskToEdit.reporter = '6046b01ed5ca7434f7e2fbff'
+        const user = this.$auth.user
+        if (
+          user._id.toString() === this.assigneeId.toString() ||
+          user._id.toString() === this.taskToEdit.reporter.toString() ||
+          user.admin
+        ) {
+          this.handleEditTask()
+        } else {
+          this.showRefuse()
+        }
       } else {
         this.handleAddTask()
       }
@@ -343,6 +352,12 @@ export default {
     }
   },
   notifications: {
+    showRefuse: {
+      title: 'Failed',
+      message:
+        'You need to be the reporter, assignee, or an admin to edit this task',
+      type: 'error'
+    },
     showError: {
       title: 'Failed',
       message:

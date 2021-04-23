@@ -35,7 +35,7 @@
         </v-list-item>
 
         <v-card-actions :style="{ 'justify-content': 'space-between' }">
-          <TaskForm :task-to-edit="task" />
+          <TaskForm v-if="task.assignee" :task-to-edit="task" />
           <template>
             <v-menu max-width="600px">
               <template v-slot:activator="{ on, attrs }">
@@ -104,20 +104,35 @@ export default {
   methods: {
     archiveTask(option) {
       if (!option) return
-      this.$store
-        .dispatch('tasks/archiveTask', this.task._id)
-        .then((res) => {
-          if (res.status !== 200) throw new Error(res)
-          this.taskView = false
-          this.showArchiveSuccess()
-        })
-        .catch((err) => {
-          this.showArchiveError()
-          return err
-        })
+      const user = this.$auth.user
+      if (
+        user._id.toString() === this.task.assignee.toString() ||
+        user._id.toString() === this.task.reporter.toString() ||
+        user.admin
+      ) {
+        this.$store
+          .dispatch('tasks/archiveTask', this.task._id)
+          .then((res) => {
+            if (res.status !== 200) throw new Error(res)
+            this.taskView = false
+            this.showArchiveSuccess()
+          })
+          .catch((err) => {
+            this.showArchiveError()
+            return err
+          })
+      } else {
+        return this.showRefuse()
+      }
     }
   },
   notifications: {
+    showRefuse: {
+      title: 'Failed',
+      message:
+        'You need to be the reporter, assignee, or an admin to archive this task',
+      type: 'error'
+    },
     showArchiveError: {
       title: 'Failed',
       message: 'Failed to archive task please contact system admin',

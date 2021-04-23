@@ -5,8 +5,8 @@
       <div v-for="board in boards" :key="board._id">
         <Board :board="board" />
       </div>
-      <div>
-        <v-card v-if="!loading" width="360" class="mx-1">
+      <div v-if="showAddBoardForm">
+        <v-card width="360" class="mx-1">
           <v-app-bar color="#2F929D">
             <v-toolbar-title v-text="'Add New Board'" />
             <div class="flex-grow-1"></div>
@@ -43,18 +43,19 @@ export default {
   data() {
     return { boards: {}, loading: true }
   },
-  computed: {},
-  async created() {
+  computed: {
+    // computes whether or not to display the add board form
+    showAddBoardForm() {
+      return this.$route.name === 'index' && !this.loading
+    }
+  },
+  created() {
     this.unsubscribe = this.$store.subscribe((action, state) => {
       if (action.type === 'boards/SET_BOARDS') {
         this.updateBoards(action.payload)
       }
+      this.loading = false
     })
-    await this.$store.dispatch('tasks/fetchCurrent')
-    await this.$store.dispatch('boards/fetchBoards', this.userId)
-    await this.$store.dispatch('user/fetchUsers')
-    this.loading = false
-    this.tasks = this.$store.getters['tasks/getCurrent']
   },
   beforeDestroy() {
     this.unsubscribe()
@@ -68,33 +69,6 @@ export default {
     }
   }
 }
-//   data() {
-//     return { boards: {} }
-//   },
-//   computed: {},
-//   async created() {
-//     this.unsubscribe = this.$store.subscribe((action, state) => {
-//       if (action.type === 'boards/SET_BOARDS') {
-//         this.updateBoards(action.payload)
-//       }
-//     })
-//     await this.$store.dispatch('tasks/fetchCurrent')
-//     await this.$store.dispatch('boards/fetchBoards')
-//     await this.$store.dispatch('user/fetchUsers')
-//     this.tasks = this.$store.getters['tasks/getCurrent']
-//   },
-//   beforeDestroy() {
-//     this.unsubscribe()
-//   },
-
-//   methods: {
-//     updateBoards(payload) {
-//       payload.forEach((board, i) => {
-//         Vue.set(this.boards, board._id, board)
-//       })
-//     }
-//   }
-// }
 </script>
 <style scoped>
 .custom-container {

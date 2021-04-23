@@ -5,15 +5,18 @@
         <v-icon>mdi-settings</v-icon>
       </v-btn> -->
       <v-toolbar-title :board="board" v-text="board.title" />
-      <div v-if="board.title === 'Add Board'">
-        <v-chip class="ma-2" color="green" text-color="white">New</v-chip>
-      </div>
       <div class="flex-grow-1"></div>
       <div
         v-if="board.color"
         v-bind:style="{ backgroundColor: board.color }"
+        @mouseover="hover = true"
+        @mouseleave="hover = false"
         class="board-color"
-      ></div>
+      >
+        <v-icon class="mdi-pencil">
+          mdi-pencil
+        </v-icon>
+      </div>
       <!-- <v-btn icon>
         <v-icon>mdi-magnify</v-icon>
       </v-btn> -->
@@ -73,6 +76,7 @@ export default {
     }
   },
   data: () => ({
+    hover: false,
     drag: false,
     boardCopy: {
       title: 'Unassigned',
@@ -85,12 +89,12 @@ export default {
         delay: 200,
         animation: 200,
         group: 'description',
-        disabled: false,
         ghostClass: 'ghost',
         scrollSensitivity: 200,
         scrollSpeed: 25,
         forceFallback: true,
-        delayOnTouchOnly: true
+        delayOnTouchOnly: true,
+        disabled: !(this.$route.name === 'index' || this.$auth.user.admin)
       }
     }
   },
@@ -104,36 +108,40 @@ export default {
     handleMoveTask(evt) {
       if (evt.added || evt.moved) {
         const { element, newIndex } = evt.added || evt.moved
-        if (element.assignee.toString() !== this.$auth.user._id.toString()) {
+        const user = this.$auth.user
+        if (element.assignee.toString() === user._id.toString() || user.admin) {
+          element.index = newIndex
+          const payload = {
+            task: element,
+            board: this.board,
+            route: this.$route.name
+          }
+          this.$store
+            .dispatch('tasks/moveTask', payload)
+            .then((res) => {
+              if (res.status !== 200) {
+                throw new Error(res)
+              }
+              this.$store
+                .dispatch('boards/updateBoard', res.data.tasks)
+                .then((res) => {
+                  this.showMoveSuccess()
+                })
+                .catch((err) => {
+                  // console.log(err)
+                  this.showMoveError()
+                  return err
+                })
+            })
+            .catch((err) => {
+              // this.boardCopy.tasks = this.board.tasks
+
+              this.showMoveError()
+              return err
+            })
+        } else {
           return this.showMoveError()
         }
-        element.index = newIndex
-        const payload = {
-          task: element,
-          board: this.board,
-          route: this.$route.name
-        }
-        this.$store
-          .dispatch('tasks/moveTask', payload)
-          .then((res) => {
-            if (res.status !== 200) {
-              throw new Error(res)
-            }
-            this.$store
-              .dispatch('boards/updateBoard', res.data.tasks)
-              .then((res) => {
-                this.showMoveSuccess()
-              })
-              .catch((err) => {
-                this.showMoveError()
-                return err
-              })
-          })
-          .catch((err) => {
-            // this.boardCopy.tasks = this.board.tasks
-            this.showMoveError()
-            return err
-          })
       }
     }
   },
@@ -153,6 +161,10 @@ export default {
 </script>
 
 <style scoped>
+.mdi-pencil {
+  transition: all 0.5s;
+  opacity: 0;
+}
 .flip-list-move {
   transition: transform 0.5s;
 }
@@ -180,6 +192,9 @@ export default {
   justify-content: center;
 }
 .board-color {
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
   float: right;
   border-radius: 100%;
   width: 48px;

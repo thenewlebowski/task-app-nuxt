@@ -79,6 +79,7 @@ export const mutations = {
     // }
   },
   UPDATE_TASK(state, task) {
+    if (!state[task.route]) task.route = 'index'
     state[task.route] = state[task.route].filter(
       (old) => old._id.toString() !== task._id.toString()
     )

@@ -1,7 +1,16 @@
 <template>
   <div class="custom-container">
-    <SearchHeader />
+    <SearchHeader v-if="!loading" />
     <Page />
+    <Redirect
+      v-if="!loading"
+      :chip="true"
+      chip-text="New"
+      url="/reported"
+      chip-color="success"
+      icon="mdi-file-chart"
+      tooltip="Checkout on your reported tasks"
+    />
   </div>
 </template>
 
@@ -11,22 +20,24 @@ import SearchHeader from '@/components/page/SearchHeader'
 import Page from '@/components/Page'
 
 // import { defineComponent } from '@vue/composition-api'
+import Redirect from '@/components/buttons/Redirect'
 import Vue from 'vue'
 
 export default {
   name: 'TasksPage',
   components: {
     Page,
+    Redirect,
     SearchHeader
   },
   head: () => ({
     title: 'My Tasks'
   }),
   data() {
-    return { boards: {} }
+    return { boards: {}, loading: true }
   },
   computed: {},
-  async created() {
+  async mounted() {
     this.unsubscribe = this.$store.subscribe((action, state) => {
       if (action.type === 'boards/SET_BOARDS') {
         this.updateBoards(action.payload)
@@ -36,6 +47,7 @@ export default {
     await this.$store.dispatch('boards/fetchBoards')
     await this.$store.dispatch('user/fetchUsers')
     this.tasks = this.$store.getters['tasks/getCurrent']
+    this.loading = false
   },
   beforeDestroy() {
     this.unsubscribe()
