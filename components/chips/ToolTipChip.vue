@@ -7,7 +7,13 @@
     :left="left"
   >
     <template v-slot:activator="{ on, attrs }">
-      <v-chip v-bind="attrs" v-on="on" :color="type" right>
+      <v-chip
+        v-bind="attrs"
+        v-on="on"
+        :color="type"
+        :class="btnClasses ? btnClasses.join(' ') : ''"
+        right
+      >
         {{ title }}
         <v-icon class="ml-2">
           {{ icon }}
@@ -22,6 +28,10 @@
 export default {
   name: 'ToolTipChip',
   props: {
+    btnClasses: {
+      type: Array,
+      default: () => []
+    },
     left: {
       type: Boolean,
       default: false

@@ -4,10 +4,10 @@
     :close-on-content-click="false"
     bottom
     offset-y
-    min-width="600"
+    max-width="100%"
   >
     <template v-slot:activator="{ on }">
-      <v-btn v-on="on" outlined text>
+      <v-btn v-on="on" :class="btnProps" outlined>
         <v-icon>mdi-filter-variant</v-icon>
       </v-btn>
     </template>
@@ -97,6 +97,12 @@
 <script>
 export default {
   name: 'FilterBoards',
+  props: {
+    classes: {
+      type: Array,
+      default: () => {}
+    }
+  },
   data() {
     return {
       site: null,
@@ -114,6 +120,9 @@ export default {
     }
   },
   computed: {
+    btnProps() {
+      return this.classes ? this.classes.join(' ') : ''
+    },
     idKey() {
       return this.$store.state.user.idKey
     }
@@ -163,4 +172,8 @@ export default {
 }
 </script>
 
-<style></style>
+<style scoped>
+.v-menu__content {
+  width: 600px;
+}
+</style>

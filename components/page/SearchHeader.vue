@@ -2,26 +2,28 @@
   <v-card class="d-fixed m-bottom-5 page-header" dark>
     <!-- <v-card > -->
     <v-toolbar color="#385F73">
-      <v-card-title class="text-h5">
+      <v-card-title class="text-h5 d-none d-md-block">
         {{ user ? user.username : 'Boards' }}
       </v-card-title>
       <ToolTipChip
         :left="true"
+        :btnClasses="['d-none', 'd-md-block']"
         title="W.I.P"
         width="300"
         tooltip="The search header is currently a work in progress and hasn't had all the functionality added to it yet. In the coming weeks search and filtration will become available giving you the ability to sort through your tasks fairly easily."
       />
-      <v-spacer />
-      <FilterBoards />
+      <v-spacer class="d-none d-md-block" />
+
+      <FilterBoards :classes="['d-none', 'd-md-block']" />
       <v-text-field
         ref="search"
         v-model="search"
+        :placeholder="placeholder"
         class="mx-4"
         append-icon="mdi-magnify"
         label="Search"
         single-line
         hide-details
-        placeholder="Find it quick (Type / to search)"
       />
       <TaskForm />
     </v-toolbar>
@@ -48,6 +50,13 @@ export default {
       search: null
     }
   },
+  computed: {
+    placeholder() {
+      return !this.$vuetify.breakpoint.mobile
+        ? 'Find it quick (type / to search)'
+        : 'Find it quick'
+    }
+  },
   watch: {
     search() {
       this.$nextTick(
@@ -63,14 +72,6 @@ export default {
         varients.map((v) => (payload[v] = this.search))
         this.$store.dispatch('boards/searchBoards', payload)
       } else if (this.search === '') this.$store.dispatch('boards/resetFilter')
-
-      // this.users = this.$store.getters['user/getUsers'].filter((user) => {
-      //   const { username, firstName, lastName } = user
-      //   const fullName = `${firstName} ${lastName}`
-      //   if (fullName.includes(this.search.toUpperCase())) return true
-      //   if (username.includes(this.search.toUpperCase())) return true
-      //   return false
-      // })
     }
   },
   beforeMount() {
@@ -98,6 +99,12 @@ export default {
   left: 0;
   top: 0;
   width: 100%;
-  z-index: 9999;
+  z-index: 1;
+}
+
+@media (max-width: 710px) {
+  .v-toolbar__content {
+    flex-direction: column;
+  }
 }
 </style>
