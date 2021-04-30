@@ -35,7 +35,7 @@
         </v-list-item>
 
         <v-card-actions :style="{ 'justify-content': 'space-between' }">
-          <TaskForm v-if="task.assignee" :task-to-edit="task" />
+          <TaskForm v-if="task.assignee" :task-to-edit="task" :key="task._id" />
           <template>
             <v-menu max-width="600px">
               <template v-slot:activator="{ on, attrs }">
@@ -94,13 +94,19 @@ export default {
   props: {
     task: {
       type: Object,
-      default: Object
+      default: () => {}
     }
   },
   data: () => ({
     options: { Yes: true, No: false },
     taskView: false
   }),
+  computed: {
+    props() {
+      console.log(this.$store.state.tasks.index[this.task._id.toString()])
+      return this.$store.state.tasks.index[this.task._id.toString()]
+    }
+  },
   methods: {
     archiveTask(option) {
       if (!option) return

@@ -117,7 +117,7 @@
       </v-container>
       <v-card-actions>
         <div class="flex-grow-1"></div>
-        <v-btn @click="clear" color="blue darken-1" text>Cancel</v-btn>
+        <v-btn @click="dialog = false" color="blue darken-1" text>Cancel</v-btn>
         <v-btn @click="handleSubmit" color="blue darken-1" text>Submit</v-btn>
       </v-card-actions>
     </v-card>
@@ -125,6 +125,7 @@
 </template>
 
 <script>
+import Vue from 'vue'
 import { validationMixin } from 'vuelidate'
 import { required, maxLength, minLength } from 'vuelidate/lib/validators'
 
@@ -186,7 +187,7 @@ export default {
       const errors = []
       if (!this.$v.title.$dirty) return errors
       !this.$v.title.maxLength &&
-        errors.push('Title must be at most 70 characters long')
+        errors.push('Title must be at most 100 characters long')
       !this.$v.title.required && errors.push('Title is required.')
       return errors
     },
@@ -240,11 +241,11 @@ export default {
       return errors
     }
   },
-  created() {
+  mounted() {
     if (this.taskToEdit) {
       Object.keys(this.taskToEdit).forEach((key) => {
         if (key in this) {
-          this[key] = this.taskToEdit[key]
+          Vue.set(this, key, this.taskToEdit[key])
         }
       })
       this.assignee = this.nameKey[this.assignee]
