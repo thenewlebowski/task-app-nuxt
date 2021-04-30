@@ -55,10 +55,7 @@ export const mutations = {
     state.task = task
   },
   ADD_TASK(state, data) {
-    state.index = state.index.filter(
-      (t) => t.toString() !== data.task._id.toString()
-    )
-    state.index.push(data.task)
+    Vue.set(state.index, data.task._id, data.task)
     if (
       data.task.assignee &&
       this.$auth.user._id.toString() === data.task.assignee.toString()
@@ -89,9 +86,7 @@ export const mutations = {
     )
   },
   ARCHIVE_TASK(state, task) {
-    state.index = state.index.filter(
-      (t) => t.toString() !== task._id.toString()
-    )
+    delete state.index[task._id]
     state.archived.push(task)
     this.dispatch('boards/archiveTask', task)
       .then((task) => {
@@ -166,7 +161,6 @@ export const actions = {
   },
   moveTask({ commit }, payload) {
     return axios.put('/api/tasks/move', payload).then((response) => {
-      console.log(response)
       const { route } = payload
       const data = response.data
       data.route = route
@@ -183,6 +177,7 @@ export const actions = {
   archiveTask({ commit }, taskId) {
     return axios.post('/api/tasks/archive', { taskId }).then((response) => {
       commit('ARCHIVE_TASK', response.data.updated)
+
       return response
     })
   },

@@ -116,11 +116,11 @@ export const actions = {
     return data
   },
   archiveTask({ commit }, data) {
-    const board = this.state.boards.boards[data.board]
-    board.tasks = board.tasks.filter(
-      (t) => t._id.toString() !== data._id.toString()
-    )
-    commit('SET_BOARDS', [board])
+    const payload = {
+      task: data,
+      oldBoard: { _id: data.board }
+    }
+    commit('REMOVE_TASK', payload)
     return data
   },
   updateBoard({ commit }, data) {

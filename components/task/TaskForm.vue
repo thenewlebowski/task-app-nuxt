@@ -106,9 +106,6 @@
             <v-select
               v-model="status"
               :items="Object.values(boardKey)"
-              :error-messages="statusErrors"
-              @change="$v.status.$touch()"
-              @blur="$v.status.$touch()"
               label="Status/ Board*"
               required
             />
@@ -149,7 +146,6 @@ export default {
     assignee: {},
     priority: { required },
     type: { required },
-    status: { required },
     site: { required },
     points: { required }
   },
@@ -161,11 +157,10 @@ export default {
       type: 'Task',
       site: 'PlumbersStock',
       points: 10,
-      status: 'To Do',
-      assignee: 'Unassigned Tasks',
+      status: '',
+      assignee: '',
       priorityLevels: ['Lowest', 'Low', 'Medium', 'High', 'Highest'],
       types: ['Task', 'Problem', 'General', 'Styling'],
-      statusTypes: ['To Do', 'In Progress', 'Done', 'Backlog'],
       board: null,
       sites: this.$store.state.tasks.sites,
       dialog: false,
@@ -208,12 +203,6 @@ export default {
       const errors = []
       if (!this.$v.type.$dirty) return errors
       !this.$v.type.required && errors.push('Type is required.')
-      return errors
-    },
-    statusErrors() {
-      const errors = []
-      if (!this.$v.status.$dirty) return errors
-      !this.$v.status.required && errors.push('Status is required.')
       return errors
     },
     siteErrors() {

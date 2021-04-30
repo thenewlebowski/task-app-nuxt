@@ -40,7 +40,7 @@ const TaskSchema = mongoose.Schema(
     },
     status: {
       type: String,
-      default: 'To Do',
+      default: 'To Do'
       // required: true
     },
     index: {
@@ -84,7 +84,8 @@ const TaskSchema = mongoose.Schema(
     },
     assignee: {
       type: ObjectId,
-      ref: 'User'
+      ref: 'User',
+      default: null
     },
     reporter: {
       type: ObjectId,
@@ -116,7 +117,7 @@ TaskSchema.pre('save', function(next) {
     //* note can probably look for an user before we assume its an unassigned reporter
     this.reporter = new TypeObjectId('6046b01ed5ca7434f7e2fbff')
   }
-  if(!this.status) this.status = 'To Do'
+  if (!this.status) this.status = 'To Do'
   if (
     this.type === 'Epic' ||
     this.type === 'Story' ||
