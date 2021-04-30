@@ -17,12 +17,7 @@ router
 
     Board.find(query)
       .populate({
-        path: 'tasks',
-        options: {
-          sort: {
-            index: 1
-          }
-        }
+        path: 'tasks'
       })
       .exec(async (err, boards) => {
         if (err) return next(err)
@@ -36,6 +31,20 @@ router
       return res.status(200).json(board)
     })
   })
+  //update tasks this can be modified to update any aspect of the board.
+  .put('/', (req, res, next) => {
+    req.body.tasks = req.body.tasks.map(t => t._id ? t._id : t)
+    Board.findById(req.body.board, (err, board) => {
+      if(err || !board) return err ? next(err) : next('No board found')
+      board.tasks = req.body.tasks
+      board.save()
+      .then((board) => {
+          if(err) return next(err)
+          res.status(200).json(board)
+        })
+      })
+      .catch((err) => next(err))
+    })
   .get('/reported', async (req, res, next) => {
     const { _id } = req.session.user
     const boards = {}

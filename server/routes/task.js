@@ -74,7 +74,7 @@ router
   .use('/tasks', router)
   .get('/', (req, res) => {
     const { _id } = req.session.user
-    Task.find({ assignee: _id, archived: null })
+    Task.find({ assignee: _id, archived: {$ne : true} })
       .then((tasks) => {
         reassignTitle(tasks)
         res.status(200).json(tasks)
@@ -84,7 +84,7 @@ router
       })
   })
   .get('/unassigned', (req, res) => {
-    Task.find({ assignee: null, archived: null })
+    Task.find({ $or: [{assignee: null}, {assignee: '6046b01ed5ca7434f7e2fbff'}], archived: null })
       .then((tasks) => {
         //  replace title with substring of desc if no title exists
         reassignTitle(tasks)
@@ -123,19 +123,22 @@ router
   .post('/', async (req, res) => {
     const data = req.body
     const task = new Task(data)
-    let board = await Board.findOne({
-      title: data.status,
-      owner: data.assignee
-    })
-    if (!board) {
-      board = new Board()
-      board.owner = data.assignee
-      board.publicBoard = true
-      board.tasks = []
-      board.title = data.status
-      await board.save().then((newBoard) => (board = newBoard))
+    if(task.assignee)
+    {
+      let board = await Board.findOne({
+        title: data.status,
+        owner: data.assignee
+      })
+      if (!board) {
+        board = new Board()
+        board.owner = data.assignee
+        board.publicBoard = true
+        board.tasks = []
+        board.title = data.status
+        await board.save().then((newBoard) => (board = newBoard))
+      }
+      task.board = board._id
     }
-    task.board = board._id
     await task
       .save()
       .then((newTask) => {

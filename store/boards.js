@@ -1,8 +1,7 @@
-import axios from 'axios'
-// import Vue from 'vue'
+import Vue from 'vue'
 
 export const state = () => ({
-  unfiltered: {},
+  // unfiltered: {}, //don't know this can't be declared when store is build why but for some reason vuex throws errors when it is :shrug:
   boards: {},
   boardKey: {}
 })
@@ -23,23 +22,23 @@ export const mutations = {
   },
   // updates entire tasks array
   UPDATE_BOARD(state, data) {
-    state.boards[data.board].tasks = data.value
+    Vue.set(state.boards[data.board], 'tasks', data.tasks)
   },
   SET_BOARD_KEY(state, boards) {
     const key = {}
-    boards.map((board) => (key[board._id] = board.title))
+    boards.map((board) => (key[board._id.toString()] = board.title))
     return (state.boardKey = key)
   },
   // creates object that we can refer to for department _ids
   async SET_BOARDS(state, boards) {
     state.boards = Object()
     // await delete state.boards
-    // Vue.set(state.boards, null, {})
     await boards.forEach((board) => {
       state.boards[board._id.toString()] = board
     })
     // have a copy of the orignal unfiltered boards
-    state.unfiltered = JSON.parse(JSON.stringify(state.boards))
+    const data = JSON.parse(JSON.stringify(state.boards))
+    state.unfiltered = { ...data }
     return state
   },
   SEARCH_BOARDS(state, data) {
@@ -57,12 +56,7 @@ export const mutations = {
             tasks[task._id] = task
         })
       }
-      const payload = {
-        board: _id,
-        value: Object.values(tasks)
-      }
-
-      this.dispatch('boards/updateBoard', payload)
+      Vue.set(state.boards[_id], 'tasks', Object.values(tasks))
     })
   },
   FILTER_BOARDS(state, data) {
@@ -80,11 +74,8 @@ export const mutations = {
             return true
         })
       }
-      const payload = {
-        board: boardId,
-        value: set
-      }
-      this.dispatch('boards/updateBoard', payload)
+
+      Vue.set(state.boards[boardId], 'tasks', set)
     }
   }
 }
@@ -134,11 +125,18 @@ export const actions = {
   },
   updateBoard({ commit }, data) {
     commit('UPDATE_BOARD', data)
-    return data
+    return this.$axios
+      .put('/api/boards/', data)
+      .then((res) => {
+        return res
+      })
+      .catch((err) => {
+        return err
+      })
   },
   fetchBoards({ commit }, _id = null) {
     _id = _id || this.$auth.user._id
-    return axios
+    return this.$axios
       .post('/api/boards', { _id })
       .then((res) => {
         commit('SET_BOARDS', res.data)
@@ -150,7 +148,7 @@ export const actions = {
   },
 
   createBoard({ commit }, data) {
-    return axios
+    return this.$axios
       .post('/api/boards/create', data)
       .then((res) => {
         commit('SET_BOARDS', [res.data])

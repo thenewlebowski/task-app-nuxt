@@ -6,7 +6,7 @@ export const state = () => ({
   unassigned: [], // all unassigned tasks
   assigned: [], // all assigned tasks
   archived: [], // all archived tasks
-  index: [], // all index users tasks
+  index: {}, // all index users tasks
   sites: [
     'Adams&Co',
     'CaseInPoint',
@@ -37,7 +37,9 @@ export const state = () => ({
 
 export const mutations = {
   SET_TASKS(state, tasks) {
-    state.index = tasks
+    tasks.map((task) => {
+      state.index[task._id.toString()] = task
+    })
     this.dispatch('varieties/setState', state.index)
   },
   SET_UNASSIGNED_TASKS(state, tasks) {
@@ -69,37 +71,17 @@ export const mutations = {
           return err
         })
     }
-    // if (task.assignee === this.$auth.user._id) {
-    //   const column = state.columns[task.status]
-    //   column.tasks.push(task)
-
-    //   Vue.set(state.columns, task.status, column)
-    // } else {
-    //   state.unassigned.push(task)
-    // }
   },
   UPDATE_TASK(state, task) {
     if (!state[task.route]) task.route = 'index'
-    state[task.route] = state[task.route].filter(
-      (old) => old._id.toString() !== task._id.toString()
-    )
-    state[task.route].push(task)
+    Vue.set(state[task.route], task._id, task)
     return task
   },
-  async MOVE_TASK(state, payload) {
+  MOVE_TASK(state, payload) {
     const { value } = payload.tasks
-    const payloadKey = {}
-    const route = state[payload.route]
-    await value.forEach((task) => {
-      payloadKey[task._id] = task
-    })
-    state[payload.route] = await route.filter((task) => {
-      return !payload[task._id]
-    })
     value.forEach((task) => {
-      state[payload.route].push(task)
+      Vue.set(state.index, task._id, task)
     })
-    return payload
   },
   TAKE_TASK(state, takenTask) {
     state.unassigned = state.unassigned.filter(
@@ -118,19 +100,6 @@ export const mutations = {
       .catch((err) => {
         return err
       })
-    // Object.values(state.columns).forEach((column) => {
-    //   column.tasks.forEach((task, i) => {
-    //     if (task._id === archivedTask._id) {
-    //       column.tasks.splice(i, 1)
-    //       Vue.set(state.columns, task.status, column)
-    //     }
-    //   })
-    // })
-    // state.unassigned.forEach((task, i) => {
-    //   if (task._id === archivedTask._id) {
-    //     state.unassigned.splice(i, 1)
-    //   }
-    // })
   },
   UNARCHIVE_TASK(state, unarchivedTask) {
     state.archived = state.archived.filter(
@@ -177,11 +146,6 @@ export const actions = {
       commit('SET_ARCHIVED_TASKS', response.data)
     })
   },
-  // fetchTask({ commit }, id) {
-  //     return axios.get('api/tasks/:id', id).then((response) => {
-  //         commit('SET_TASK', response.data)
-  //     })
-  // },
   addTask({ commit }, task) {
     return axios.post('/api/tasks', task).then(function(response) {
       commit('ADD_TASK', response.data)
@@ -202,10 +166,12 @@ export const actions = {
   },
   moveTask({ commit }, payload) {
     return axios.put('/api/tasks/move', payload).then((response) => {
+      console.log(response)
       const { route } = payload
       const data = response.data
       data.route = route
       commit('MOVE_TASK', data)
+      this.dispatch('boards/updateBoard', response.data.tasks)
       return response
     })
   },

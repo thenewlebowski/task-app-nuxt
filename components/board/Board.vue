@@ -26,21 +26,19 @@
         <v-col>
           <div v-if="board.title !== 'Add Board'">
             <draggable
-              v-model="board.tasks"
+              v-model="tasks"
               v-bind="dragOptions"
               @start="drag = true"
               @end="drag = false"
-              @change="(evt) => handleMoveTask(evt, board.title)"
               class="list-group pl-0"
               group="tasks"
               tag="ul"
             >
-              <li
-                v-for="task in board.tasks"
-                :key="task.id"
-                class="list-group-item"
-              >
-                <TaskCard :task="task" />
+              <li v-for="task in tasks" :key="task.id" class="list-group-item">
+                <TaskCard
+                  :id="task._id"
+                  :task="$store.state.tasks.index[task._id]"
+                />
               </li>
             </draggable>
           </div>
@@ -70,18 +68,15 @@ export default {
     TaskCard
   },
   props: {
-    board: {
-      type: Object,
-      default: () => {}
+    // board id
+    id: {
+      type: String,
+      required: true
     }
   },
   data: () => ({
     hover: false,
-    drag: false,
-    boardCopy: {
-      title: 'Unassigned',
-      tasks: []
-    }
+    drag: false
   }),
   computed: {
     dragOptions() {
@@ -96,55 +91,34 @@ export default {
         delayOnTouchOnly: true,
         disabled: !(this.$route.name === 'index' || this.$auth.user.admin)
       }
-    }
-  },
-  mounted() {
-    this.boardCopy = { ...this.board }
-  },
-  methods: {
-    sort() {
-      this.list = this.list.sort((a, b) => a.order - b.order)
     },
-    handleMoveTask(evt) {
-      if (evt.added || evt.moved) {
-        const { element, newIndex } = evt.added || evt.moved
-        const user = this.$auth.user
-        if (element.assignee.toString() === user._id.toString() || user.admin) {
-          element.index = newIndex
-          const payload = {
-            task: element,
-            board: this.board,
-            route: this.$route.name
-          }
-          this.$store
-            .dispatch('tasks/moveTask', payload)
-            .then((res) => {
-              if (res.status !== 200) {
-                throw new Error(res)
-              }
-              this.$store
-                .dispatch('boards/updateBoard', res.data.tasks)
-                .then((res) => {
-                  this.showMoveSuccess()
-                })
-                .catch((err) => {
-                  // console.log(err)
-                  this.showMoveError()
-                  return err
-                })
-            })
-            .catch((err) => {
-              // this.boardCopy.tasks = this.board.tasks
-
-              this.showMoveError()
-              return err
-            })
-        } else {
-          return this.showMoveError()
+    board: {
+      get() {
+        console.log(this.$store.state.boards.boards[this.id.toString()])
+        return this.$store.state.boards.boards[this.id.toString()]
+      },
+      set(value, evt) {
+        console.log('[Board.vue] Board setter')
+        console.log(value)
+        console.log(evt)
+      }
+    },
+    tasks: {
+      get() {
+        return this.$store.state.boards.boards[this.id.toString()].tasks
+      },
+      set(tasks) {
+        const payload = {
+          tasks,
+          board: this.board._id
         }
+
+        this.$store.dispatch('boards/updateBoard', payload)
       }
     }
   },
+
+  methods: {},
   notifications: {
     showMoveError: {
       title: 'Failed',

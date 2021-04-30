@@ -20,7 +20,7 @@ export const mutations = {
     // only fetch users if they aren't already set
     if (Object.keys(this.state.user.idKey).length < 1)
       await this.dispatch('user/fetchUsers')
-    data.map((task) => {
+    Object.values(data).map((task) => {
       if (task.site) state.sites[task.site] = task.site
       if (task.type) state.types[task.type] = task.type
       if (task.priority) state.priorities[task.priority] = task.priority

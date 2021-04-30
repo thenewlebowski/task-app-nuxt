@@ -3,7 +3,7 @@
     <!-- <SearchHeader /> -->
     <div class="d-flex flex-row my-3">
       <div v-for="board in boards" :key="board._id">
-        <Board :board="board" />
+        <Board :id="board._id" />
       </div>
       <div v-if="showAddBoardForm">
         <v-card width="360" class="mx-1">

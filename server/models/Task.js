@@ -40,7 +40,8 @@ const TaskSchema = mongoose.Schema(
     },
     status: {
       type: String,
-      required: true
+      default: 'To Do',
+      // required: true
     },
     index: {
       type: Number
@@ -53,6 +54,7 @@ const TaskSchema = mongoose.Schema(
     site: {
       type: String,
       required: true,
+      default: 'PlumbersStock',
       enum: [
         'Adams&Co',
         'CaseInPoint',
@@ -114,7 +116,7 @@ TaskSchema.pre('save', function(next) {
     //* note can probably look for an user before we assume its an unassigned reporter
     this.reporter = new TypeObjectId('6046b01ed5ca7434f7e2fbff')
   }
-
+  if(!this.status) this.status = 'To Do'
   if (
     this.type === 'Epic' ||
     this.type === 'Story' ||
