@@ -24,6 +24,11 @@ export const mutations = {
   UPDATE_BOARD(state, data) {
     Vue.set(state.boards[data.board], 'tasks', data.tasks)
   },
+  // resets boards to a blank object
+  RESET_BOARDS(state) {
+    state.boards = Object()
+    return state
+  },
   SET_BOARD_KEY(state, boards) {
     const key = {}
     boards.map((board) => (key[board._id.toString()] = board.title))
@@ -31,7 +36,6 @@ export const mutations = {
   },
   // creates object that we can refer to for department _ids
   async SET_BOARDS(state, boards) {
-    state.boards = Object()
     // await delete state.boards
     await boards.forEach((board) => {
       state.boards[board._id.toString()] = board
@@ -107,6 +111,7 @@ export const actions = {
           board.title = user ? user.username : 'Unassigned'
           return board
         })
+        commit('RESET_BOARDS')
         commit('SET_BOARDS', data)
       })
       .catch((err) => err)
@@ -139,6 +144,7 @@ export const actions = {
     return this.$axios
       .post('/api/boards', { _id })
       .then((res) => {
+        commit('RESET_BOARDS')
         commit('SET_BOARDS', res.data)
         commit('SET_BOARD_KEY', res.data)
       })

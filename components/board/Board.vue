@@ -35,10 +35,7 @@
               tag="ul"
             >
               <li v-for="task in tasks" :key="task.id" class="list-group-item">
-                <TaskCard
-                  :id="task._id"
-                  :task="$store.state.tasks.index[task._id]"
-                />
+                <TaskCard :id="task._id" :task="task" />
               </li>
             </draggable>
           </div>
