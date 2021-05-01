@@ -3,7 +3,8 @@ import Vue from 'vue'
 export const state = () => ({
   // unfiltered: {}, //don't know this can't be declared when store is build why but for some reason vuex throws errors when it is :shrug:
   boards: {},
-  boardKey: {}
+  boardKey: {},
+  search: false
 })
 
 export const mutations = {
@@ -36,9 +37,10 @@ export const mutations = {
   },
   // creates object that we can refer to for department _ids
   async SET_BOARDS(state, boards) {
+    state.search = false
     // await delete state.boards
     await boards.forEach((board) => {
-      state.boards[board._id.toString()] = board
+      Vue.set(state.boards, [board._id.toString()], board)
     })
     // have a copy of the orignal unfiltered boards
     const data = JSON.parse(JSON.stringify(state.boards))
@@ -46,6 +48,7 @@ export const mutations = {
     return state
   },
   SEARCH_BOARDS(state, data) {
+    Vue.set(state, 'search', true)
     Object.keys(state.unfiltered).map((_id) => {
       const set = state.unfiltered[_id].tasks
       const tasks = {}
@@ -64,6 +67,7 @@ export const mutations = {
     })
   },
   FILTER_BOARDS(state, data) {
+    Vue.set(state, 'search', true)
     const boards = JSON.parse(JSON.stringify(state.unfiltered))
     for (const [boardId] of Object.entries(state.unfiltered)) {
       let set = boards[boardId].tasks

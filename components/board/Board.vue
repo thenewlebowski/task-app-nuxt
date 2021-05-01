@@ -86,19 +86,12 @@ export default {
         scrollSpeed: 25,
         forceFallback: true,
         delayOnTouchOnly: true,
+
         disabled: !(this.$route.name === 'index' || this.$auth.user.admin)
       }
     },
-    board: {
-      get() {
-        console.log(this.$store.state.boards.boards[this.id.toString()])
-        return this.$store.state.boards.boards[this.id.toString()]
-      },
-      set(value, evt) {
-        console.log('[Board.vue] Board setter')
-        console.log(value)
-        console.log(evt)
-      }
+    board() {
+      return this.$store.state.boards.boards[this.id.toString()]
     },
     tasks: {
       get() {
@@ -109,7 +102,10 @@ export default {
           tasks,
           board: this.board._id
         }
-
+        // hack because searching will cause the showing task to over rider
+        // in the future you could filter out this task from the unfiltered state
+        // of the old board and push it to the unfilter state fo the new board
+        if (this.$store.state.boards.search) return this.showMoveError()
         this.$store.dispatch('boards/updateBoard', payload)
       }
     }
@@ -119,7 +115,8 @@ export default {
   notifications: {
     showMoveError: {
       title: 'Failed',
-      message: 'Error moving task, please contact system admin',
+      message:
+        'Cannot move tasks while searching, you may update the tasks board in the task form',
       type: 'error'
     },
     showMoveSuccess: {
