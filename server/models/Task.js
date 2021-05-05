@@ -99,6 +99,10 @@ const TaskSchema = mongoose.Schema(
       type: mongoose.Schema.Types.Date,
       default: null
     },
+    dateDue: {
+      type: mongoose.Schema.Types.Date,
+      default: null
+    },
     page: {
       type: ObjectId,
       ref: 'Page'

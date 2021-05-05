@@ -50,9 +50,8 @@ module.exports = {
    */
   plugins: [
     { src: '@/plugins/vue-notifications', ssr: false },
-    { src: '@/plugins/vuetify' }
-    // TODO: use moment?
-    // { src: '@/plugins/vue-moment' }
+    { src: '@/plugins/vuetify' },
+    { src: '@/plugins/vue-moment' }
   ],
   /*
    ** Nuxt.js dev-modules

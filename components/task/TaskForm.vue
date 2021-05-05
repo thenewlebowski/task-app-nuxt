@@ -8,11 +8,48 @@
       </slot>
     </template>
     <v-card>
-      <v-card-title>
+      <v-toolbar>
         <span class="headline">{{
           !taskToEdit ? 'Add New Task' : 'Edit Task'
         }}</span>
-      </v-card-title>
+        <v-spacer> </v-spacer>
+        <v-menu
+          :close-on-content-click="false"
+          bottom
+          left
+          offset-y
+          max-width="100%"
+        >
+          <template v-slot:activator="{ on }">
+            <v-btn v-on="on" outlined text>Edit Dates</v-btn>
+          </template>
+          <v-list>
+            <v-list-item>
+              <DatePickerDialog
+                :date="dateCompleted"
+                @update-date="updateDate"
+                message="Edit Completion Date"
+                type="dateCompleted"
+              />
+              <span class="ml-5"
+                >Date Completed : {{ dateCompleted || 'None' }}
+              </span>
+            </v-list-item>
+            <v-list-item>
+              <DatePickerDialog
+                :date="dateDue"
+                @update-date="updateDate"
+                message="Edit Due Date"
+                type="dateDue"
+              />
+              <span class="ml-5 float-right"
+                >Due Date : {{ dateDue || 'None' }}
+              </span>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </v-toolbar>
+
       <v-container>
         <v-row>
           <v-col cols="12">
@@ -124,10 +161,16 @@
 <script>
 import Vue from 'vue'
 import { validationMixin } from 'vuelidate'
+import ToolTipChip from '@/components/chips/ToolTipChip'
+import DatePickerDialog from '@/components/buttons/DatePickerDialog'
 import { required, maxLength, minLength } from 'vuelidate/lib/validators'
 
 export default {
   name: 'TaskForm',
+  components: {
+    ToolTipChip,
+    DatePickerDialog
+  },
   mixins: [validationMixin],
   props: {
     taskToEdit: {
@@ -163,12 +206,19 @@ export default {
       types: ['Task', 'Problem', 'General', 'Styling'],
       board: null,
       sites: this.$store.state.tasks.sites,
+      dateDue: null,
+      dateCompleted: null,
       dialog: false,
       error: null,
       submitStatus: null
     }
   },
   computed: {
+    // date() {
+    //   return this.dateCompleted
+    //     ? this.dateCompleted.substring(0, this.dateCompleted.indexOf('T'))
+    //     : this.$moment(Date.now()).format('YYYY-MM-DD')
+    // },
     // values
     boardKey() {
       return this.$store.getters['boards/getBoardKey']
@@ -237,10 +287,20 @@ export default {
           Vue.set(this, key, this.taskToEdit[key])
         }
       })
+      const dateCompleted = this.taskToEdit.dateCompleted
+      const dateDue = this.taskToEdit.dateDue
+      this.dateCompleted = dateCompleted
+        ? this.$moment(dateCompleted).format('YYYY-MM-DD')
+        : null
+      this.dateDue = dateDue ? this.$moment(dateDue).format('YYYY-MM-DD') : null
       this.assignee = this.nameKey[this.assignee]
     }
   },
   methods: {
+    updateDate(value) {
+      this[value.type] = value.date
+      // this.taskToEdit ? (this.dateCompleted = value) : (this.dueDate = value)
+    },
     handleSubmit() {
       // assignee logic
       if (this.assignee) this.assigneeId = this.assignee._id
@@ -301,15 +361,17 @@ export default {
     handleEditTask() {
       const payload = {
         update: {
-          title: this.title,
-          description: this.description,
-          priority: this.priority,
           type: this.type,
-          status: this.status,
           site: this.site,
+          board: this.board,
+          title: this.title,
           points: this.points,
+          status: this.status,
+          dateDue: this.dateDue,
+          priority: this.priority,
           assignee: this.assigneeId,
-          board: this.board
+          description: this.description,
+          dateCompleted: this.dateCompleted
         },
         taskId: this.taskToEdit._id,
         route: this.$route.name

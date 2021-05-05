@@ -34,7 +34,7 @@
               group="tasks"
               tag="ul"
             >
-              <li v-for="task in tasks" :key="task.id" class="list-group-item">
+              <li v-for="task in tasks" :key="task._id" class="list-group-item">
                 <TaskCard :id="task._id" :task="task" />
               </li>
             </draggable>
@@ -71,10 +71,13 @@ export default {
       required: true
     }
   },
-  data: () => ({
-    hover: false,
-    drag: false
-  }),
+  data() {
+    return {
+      hover: false,
+      drag: false,
+      board: this.$store.state.boards.boards[this.id]
+    }
+  },
   computed: {
     dragOptions() {
       return {
@@ -90,9 +93,7 @@ export default {
         disabled: !(this.$route.name === 'index' || this.$auth.user.admin)
       }
     },
-    board() {
-      return this.$store.state.boards.boards[this.id.toString()]
-    },
+
     tasks: {
       get() {
         return this.$store.state.boards.boards[this.id.toString()].tasks
