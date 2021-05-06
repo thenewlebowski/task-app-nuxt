@@ -83,8 +83,7 @@ export default {
       {
         text: 'Page search',
         icon: 'mdi-account-search',
-        route: '/page-search',
-        new: true
+        route: '/page-search'
       },
       {
         text: 'Settings',

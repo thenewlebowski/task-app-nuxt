@@ -4,8 +4,6 @@
     <Page :board-form="false" :boards="reported" />
     <Redirect
       v-if="!loading"
-      :chip="true"
-      chip-text="New"
       url="/"
       chip-color="success"
       tooltip="Go to your assigned tasks"

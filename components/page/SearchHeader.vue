@@ -5,13 +5,6 @@
       <v-card-title class="text-h5 d-none d-md-block">
         {{ user ? user.username : 'Boards' }}
       </v-card-title>
-      <ToolTipChip
-        :left="true"
-        :btnClasses="['d-none', 'd-md-block']"
-        title="W.I.P"
-        width="300"
-        tooltip="The search header is currently a work in progress and hasn't had all the functionality added to it yet. In the coming weeks search and filtration will become available giving you the ability to sort through your tasks fairly easily."
-      />
       <v-spacer class="d-none d-md-block" />
 
       <FilterBoards :classes="['d-none', 'd-md-block']" />

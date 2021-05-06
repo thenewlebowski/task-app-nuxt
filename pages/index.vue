@@ -4,8 +4,6 @@
     <Page />
     <Redirect
       v-if="!loading"
-      :chip="true"
-      chip-text="New"
       url="/reported"
       chip-color="success"
       icon="mdi-file-chart"
