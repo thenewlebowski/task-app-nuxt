@@ -1,22 +1,19 @@
 <template>
   <v-card width="360" class="mx-1">
-    <v-app-bar color="#2F929D">
+    <v-app-bar :color="board.color">
       <!-- <v-btn icon>
         <v-icon>mdi-settings</v-icon>
       </v-btn> -->
       <v-toolbar-title :board="board" v-text="board.title" />
-      <div class="flex-grow-1"></div>
-      <div
-        v-if="board.color"
-        v-bind:style="{ backgroundColor: board.color }"
-        @mouseover="hover = true"
-        @mouseleave="hover = false"
-        class="board-color"
-      >
-        <v-icon class="mdi-pencil">
-          mdi-pencil
-        </v-icon>
-      </div>
+      <v-spacer></v-spacer>
+      <BoardForm
+        v-if="board.owner === $auth.user._id"
+        :id="board._id"
+        :publicBoard="board.publicBoard"
+        :title="board.title"
+        :color="board.color"
+        :editting="true"
+      />
       <!-- <v-btn icon>
         <v-icon>mdi-magnify</v-icon>
       </v-btn> -->

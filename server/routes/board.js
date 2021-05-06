@@ -4,7 +4,14 @@ const Task = require('../models/Task')
 
 router
   .use('/boards', router)
-  // returns all boards
+  /**
+   * @method post
+   * @route api/boards/
+   * @purpose gathers all boards according to given user _id.
+   * will only return boards that private if given user _id is
+   * the same as the user viewing the boards
+   * @returns array of board objects with tasks populated
+   */
   .post('/', (req, res, next) => {
     const _id = req.body._id
     const query = {
@@ -31,20 +38,42 @@ router
       return res.status(200).json(board)
     })
   })
-  //update tasks this can be modified to update any aspect of the board.
+
+  /**
+   * @method put
+   * @route api/boards/
+   * @purpose updates entire board based of the properties
+   * given with the required req.body.update object
+   * @returns the updated board
+   */
   .put('/', (req, res, next) => {
-    req.body.tasks = req.body.tasks.map(t => t._id ? t._id : t)
-    Board.findById(req.body.board, (err, board) => {
-      if(err || !board) return err ? next(err) : next('No board found')
-      board.tasks = req.body.tasks
-      board.save()
-      .then((board) => {
-          if(err) return next(err)
-          res.status(200).json(board)
-        })
+    // returns an array of task ids instead of the entire task
+    if (req.body.update.tasks)
+      req.body.update.tasks = req.body.update.tasks.map((t) =>
+        t._id ? t._id : t
+      )
+    Board.findById(req.body.update.board, async (err, board) => {
+      if (err || !board) return err ? next(err) : next('No board found')
+      // iterate over all the properties/entries on update object
+      await Object.entries(req.body.update).map(
+        ([key, value]) => (board[key] = value)
+      )
+      board.save().then((board) => {
+        if (err) return next(err)
+        res.status(200).json(board)
       })
-      .catch((err) => next(err))
-    })
+    }).catch((err) => next(err))
+  })
+
+  /**
+   * @method get
+   * @route api/boards/reported
+   * @purpose gathers all the reported task for currently signed user.
+   * requires no paramaters
+   * @future could gather all reported tasks for a given _id/user, but
+   * default to currently signed in user if _id paramater was not given
+   * @returns gathered reported task for currently signed in user
+   */
   .get('/reported', async (req, res, next) => {
     const { _id } = req.session.user
     const boards = {}

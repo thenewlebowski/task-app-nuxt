@@ -103,7 +103,6 @@ export default {
   }),
   computed: {
     props() {
-      console.log(this.$store.state.tasks.index[this.task._id.toString()])
       return this.$store.state.tasks.index[this.task._id.toString()]
     }
   },

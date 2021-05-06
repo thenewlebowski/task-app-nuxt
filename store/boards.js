@@ -23,7 +23,9 @@ export const mutations = {
   },
   // updates entire tasks array
   UPDATE_BOARD(state, data) {
-    Vue.set(state.boards[data.board], 'tasks', data.tasks)
+    Object.entries(data).map(([key, value]) => {
+      Vue.set(state.boards[data.board], key, value)
+    })
   },
   // resets boards to a blank object
   RESET_BOARDS(state) {
@@ -133,10 +135,11 @@ export const actions = {
     return data
   },
   updateBoard({ commit }, data) {
-    commit('UPDATE_BOARD', data)
+    const payload = { update: data }
     return this.$axios
-      .put('/api/boards/', data)
+      .put('/api/boards/', payload)
       .then((res) => {
+        commit('UPDATE_BOARD', data)
         return res
       })
       .catch((err) => {
