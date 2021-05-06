@@ -4,7 +4,7 @@
       <v-btn
         v-on="on"
         v-bind="attrs"
-        :color="editting ? tempColor : null"
+        :color="editting ? color : null"
         fab
         elevation="10"
         depressed
