@@ -67,8 +67,11 @@ export default {
         v = JSON.parse(JSON.stringify(v))
         console.log(v)
         v.map((board, i) => {
-          board.index = i
-          this.$store.dispatch('boards/updateBoard', board)
+          const payload = {
+            index: i,
+            board: board._id
+          }
+          this.$store.dispatch('boards/updateBoard', payload)
         })
       }
     },
