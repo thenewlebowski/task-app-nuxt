@@ -42,9 +42,9 @@
         </v-list-item>
 
         <v-card-actions :style="{ 'justify-content': 'space-between' }">
-          <TaskForm v-if="task.assignee" :task-to-edit="task" :key="task._id" />
+          <TaskForm v-if="auth" :task-to-edit="task" :key="task._id" />
           <template>
-            <v-menu max-width="600px">
+            <v-menu v-if="auth" max-width="600px">
               <template v-slot:activator="{ on, attrs }">
                 <v-btn
                   v-bind="attrs"
@@ -113,6 +113,14 @@ export default {
   computed: {
     props() {
       return this.$store.state.tasks.index[this.task._id.toString()]
+    },
+    auth() {
+      const user = this.$auth.user
+      return (
+        user._id === this.task.assignee ||
+        user._id === this.task.reporter ||
+        user.admin
+      )
     }
   },
   methods: {
