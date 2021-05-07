@@ -15,9 +15,18 @@ const TaskSchema = mongoose.Schema(
       default: true
     },
     board: {
-      type: ObjectId,
-      required: false,
-      ref: 'Board'
+      title: {
+        type: String
+      },
+      _id: {
+        type: ObjectId
+      },
+      color: {
+        type: String
+      },
+      type: Object,
+      ref: 'Board',
+      required: false
     },
     description: {
       type: String,
@@ -45,11 +54,6 @@ const TaskSchema = mongoose.Schema(
     },
     index: {
       type: Number
-    },
-    color: {
-      type: String,
-      required: false,
-      default: '#3F51B5'
     },
     site: {
       type: String,
@@ -256,6 +260,4 @@ TaskSchema.pre('update', function(next) {
   next()
 })
 // post-update logic
-TaskSchema.post('update', function(doc) {})
-module.exports =
-  mongoose.models.Task || mongoose.model('Task', TaskSchema, 'tasks')
+module.exports = mongoose.model('Task', TaskSchema, 'tasks')

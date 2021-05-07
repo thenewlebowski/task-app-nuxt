@@ -4,8 +4,19 @@
     <Page />
     <Redirect
       v-if="!loading"
+      :cont-style="{
+        position: 'fixed',
+        bottom: '60px',
+        right: '20px',
+        width: '100px',
+        height: '100px'
+      }"
+      :btn-style="{
+        height: '100%',
+        width: '100%'
+      }"
+      :chip-style="{ position: 'absolute', top: '-185%', right: '-30%' }"
       url="/reported"
-      chip-color="success"
       icon="mdi-file-chart"
       tooltip="Checkout on your reported tasks"
     />

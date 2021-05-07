@@ -3,6 +3,7 @@ import Vue from 'vue'
 
 export const state = () => ({
   // unassignedTasks
+  focus: '', // task currently in focus
   unassigned: [], // all unassigned tasks
   assigned: [], // all assigned tasks
   archived: [], // all archived tasks
@@ -96,6 +97,9 @@ export const mutations = {
         return err
       })
   },
+  SET_FOCUS(state, task) {
+    Vue.set(state, 'focus', task)
+  },
   UNARCHIVE_TASK(state, unarchivedTask) {
     state.archived = state.archived.filter(
       (task) => task._id !== unarchivedTask._id
@@ -121,6 +125,17 @@ export const mutations = {
   }
 }
 export const actions = {
+  /**
+   * @param {String} id | A string id of the task you wish to recieve
+   * @sets {State} focus | Sets the focus to the returned task
+   * @mutation {Method} SET_FOCUS | activates the set_focus method
+   * @returns {Object} state.focus
+   */
+  fetchSpecific({ commit }, id) {
+    return this.$axios.post(`/api/tasks`, { id }).then((response) => {
+      commit('SET_FOCUS', response.data)
+    })
+  },
   fetchCurrent({ commit }) {
     return axios.get('/api/tasks').then((response) => {
       commit('SET_TASKS', response.data)
@@ -156,16 +171,6 @@ export const actions = {
       if (data.task.board.toString() !== data.oldBoard._id.toString()) {
         this.dispatch('boards/updateTask', response.data)
       }
-      return response
-    })
-  },
-  moveTask({ commit }, payload) {
-    return axios.put('/api/tasks/move', payload).then((response) => {
-      const { route } = payload
-      const data = response.data
-      data.route = route
-      commit('MOVE_TASK', data)
-      this.dispatch('boards/updateBoard', response.data.tasks)
       return response
     })
   },

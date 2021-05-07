@@ -1,28 +1,12 @@
 <template>
-  <div
-    :style="{
-      position: 'fixed',
-      bottom: '60px',
-      right: '20px',
-      width: '100px',
-      height: '100px'
-    }"
-  >
+  <div :style="contStyle">
     <v-tooltip left>
       <template v-slot:activator="{ on, attrs }">
         <NuxtLink :to="url">
-          <v-btn
-            v-on="on"
-            v-bind="attrs"
-            :style="{ 'border-radius': '100%' }"
-            color="#385F73"
-            height="100%"
-            width="100%"
-            ><v-chip
-              v-if="chip"
-              :style="{ position: 'absolute', top: '-185%', right: '-30%' }"
-              color="success"
-              >{{ chipText }}</v-chip
+          <v-btn v-on="on" v-bind="attrs" :style="btnStyle" :color="color" fab
+            ><v-chip v-if="chip" :style="chipStyle" color="success">{{
+              chipText
+            }}</v-chip
             ><v-icon>{{ icon }}</v-icon>
           </v-btn>
         </NuxtLink>
@@ -35,6 +19,18 @@
 <script>
 export default {
   props: {
+    contStyle: {
+      type: Object,
+      default: () => {}
+    },
+    btnStyle: {
+      type: Object,
+      default: () => {}
+    },
+    chipStyle: {
+      type: Object,
+      default: () => {}
+    },
     // redirects to given url
     url: {
       default: '/',
@@ -55,6 +51,10 @@ export default {
     tooltip: {
       default: 'tooltip',
       type: String
+    },
+    color: {
+      type: String,
+      default: '#385F73'
     }
   }
 }

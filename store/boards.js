@@ -26,6 +26,18 @@ export const mutations = {
     Object.entries(data).map(([key, value]) => {
       Vue.set(state.boards[data.board], key, value)
     })
+    // update tasks board to match board
+    const payload = {
+      color: state.boards[data.board].color,
+      title: state.boards[data.board].title,
+      _id: data.board
+    }
+    const temp = state.boards[data.board].tasks.map((t) => {
+      t.board = payload
+      return t
+    })
+    Vue.set(state.boards[data.board], 'tasks', temp)
+    Vue.set(state.unfiltered, data.board, data)
   },
   // resets boards to a blank object
   RESET_BOARDS(state) {
@@ -65,6 +77,7 @@ export const mutations = {
             tasks[task._id] = task
         })
       }
+
       Vue.set(state.boards[_id], 'tasks', Object.values(tasks))
     })
   },

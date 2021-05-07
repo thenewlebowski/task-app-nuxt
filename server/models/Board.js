@@ -1,7 +1,6 @@
 const mongoose = require('mongoose')
 const ObjectId = mongoose.Schema.Types.ObjectId
 const User = require('./User')
-const Task = require('./Task')
 
 const BoardSchema = mongoose.Schema(
   {
@@ -38,17 +37,22 @@ const BoardSchema = mongoose.Schema(
   }
 )
 
-BoardSchema.pre('delete', function(next) {
-  User.findById(this.owner, (err, user) => {
-    if (err) return err
-    const filtered = user.board.filter((b) => b !== this._id)
-    user.board = filtered
-    user.save()
+BoardSchema.post('save', function() {
+  const Task = require('./Task')
+  const payload = {
+    board: {
+      color: this.color,
+      title: this.title,
+      _id: this._id
+    }
+  }
+  this.tasks.map((t) => {
+    Task.findOneAndUpdate({ _id: t }, payload, { new: true }, (err, task) => {
+      if (err) return err
+      return task
+    })
   })
-  next()
 })
-
-module.exports = mongoose.model('Board', BoardSchema)
 
 BoardSchema.pre('save', function(next) {
   const self = this
@@ -60,17 +64,12 @@ BoardSchema.pre('save', function(next) {
       self.index = boards.length
     })
   }
-
-  User.findById(this.owner, (err, user) => {
-    if (err) return err
-    user.board = user.board.filter((b) => b.toString() !== this._id.toString())
-    user.board.push(this._id)
-    user.update()
-  })
   next()
 })
 
 BoardSchema.pre('delete', function(next) {
+  const Task = require('./Task')
+
   this.tasks.forEach((task) => {
     Task.findById(task, (err, task) => {
       if (err) return err
@@ -86,4 +85,4 @@ BoardSchema.pre('delete', function(next) {
   next()
 })
 
-module.exports = mongoose.model('Board', BoardSchema)
+module.exports = mongoose.model('Board', BoardSchema, 'boards')

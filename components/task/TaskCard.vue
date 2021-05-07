@@ -17,10 +17,17 @@
       <v-card>
         <v-list-item three-line>
           <v-list-item-content>
-            <div>
+            <div class="d-flex">
               <SiteChip :site="task.site" />
               <TypeChip :type="task.type" />
               <PriorityChip :priority="task.priority" />
+              <v-spacer />
+              <Redirect
+                :color="task.board.color"
+                :url="'/task/' + task._id"
+                tooltip="Activity"
+                icon="mdi-arrow-top-right-thick"
+              />
             </div>
             <v-card-title>
               {{ task.title }}
@@ -78,6 +85,7 @@ import TypeChip from '@/components/chips/TypeChip'
 import PriorityChip from '@/components/chips/PriorityChip'
 import PointsChip from '@/components/chips/PointsChip'
 import ReporterChip from '@/components/chips/ReporterChip'
+import Redirect from '@/components/buttons/Redirect'
 import TaskForm from './TaskForm'
 import ArchiveTaskModal from './ArchiveTaskModal'
 
@@ -89,7 +97,8 @@ export default {
     TypeChip,
     PriorityChip,
     PointsChip,
-    ReporterChip
+    ReporterChip,
+    Redirect
   },
   props: {
     task: {
