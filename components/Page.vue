@@ -124,6 +124,10 @@ export default {
 }
 </script>
 <style scoped>
+.drag-board {
+  cursor: move;
+}
+
 .custom-container {
   position: absolute;
   /* width: max-content; */
