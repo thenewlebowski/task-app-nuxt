@@ -183,9 +183,8 @@ export default {
         color: this.tempColor,
         title: this.tempTitle,
         owner: this.$auth.user._id,
-        publicBoard: this.tempPublicBoard
+        publicBoard: this.tempPublic
       }
-
       // if currently editting submit existing date
       if (this.editting) {
         delete payload.owner
