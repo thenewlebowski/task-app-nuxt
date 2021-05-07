@@ -37,7 +37,7 @@ export const mutations = {
       return t
     })
     Vue.set(state.boards[data.board], 'tasks', temp)
-    Vue.set(state.unfiltered, data.board, data)
+    Vue.set(state.unfiltered[data.board], 'tasks', temp)
   },
   // resets boards to a blank object
   RESET_BOARDS(state) {
