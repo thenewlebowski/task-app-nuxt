@@ -13,6 +13,7 @@
         :title="board.title"
         :color="board.color"
         :editting="true"
+        :key="board._id"
       />
       <!-- <v-btn icon>
         <v-icon>mdi-magnify</v-icon>

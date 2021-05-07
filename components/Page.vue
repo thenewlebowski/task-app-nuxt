@@ -2,9 +2,16 @@
   <div>
     <!-- <SearchHeader /> -->
     <div class="d-flex flex-row my-3">
-      <div v-for="board in boards" :key="board._id">
-        <Board :id="board._id" />
-      </div>
+      <draggable v-bind="dragOptions" v-model="drag" class="d-flex">
+        <div
+          v-for="board in Object.values(boards).sort(
+            (a, b) => a.index - b.index
+          )"
+          :key="board._id"
+        >
+          <Board :id="board._id" />
+        </div>
+      </draggable>
       <div v-if="showAddBoardForm">
         <v-card width="360" class="mx-1">
           <v-app-bar color="#2F929D">
@@ -24,6 +31,8 @@
 
 <script>
 import Vue from 'vue'
+import draggable from 'vuedraggable'
+
 import BoardForm from '@/components/board/BoardForm'
 import SearchHeader from '@/components/page/SearchHeader'
 import Board from './board/Board'
@@ -32,6 +41,8 @@ export default {
   components: {
     Board,
     BoardForm,
+    draggable,
+
     SearchHeader
   },
   props: {
@@ -44,6 +55,37 @@ export default {
     return { boards: {}, loading: true }
   },
   computed: {
+    drag: {
+      get() {
+        return Object.values(this.boards).sort((a, b) => a.index - b.index)
+      },
+      set(v) {
+        // hack because searching will cause the showing task to over rider
+        // in the future you could filter out this task from the unfiltered state
+        // of the old board and push it to the unfilter state fo the new board
+        if (this.$store.state.boards.search) return this.showMoveError()
+        v = JSON.parse(JSON.stringify(v))
+        console.log(v)
+        v.map((board, i) => {
+          board.index = i
+          this.$store.dispatch('boards/updateBoard', board)
+        })
+      }
+    },
+    dragOptions() {
+      return {
+        delay: 200,
+        animation: 200,
+        group: 'description',
+        ghostClass: 'ghost',
+        scrollSensitivity: 200,
+        scrollSpeed: 25,
+        forceFallback: true,
+        delayOnTouchOnly: true,
+
+        disabled: !(this.$route.name === 'index' || this.$auth.user.admin)
+      }
+    },
     // computes whether or not to display the add board form
     showAddBoardForm() {
       return this.$route.name === 'index' && !this.loading
@@ -66,6 +108,14 @@ export default {
       payload.forEach((board, i) => {
         Vue.set(this.boards, board._id, board)
       })
+    }
+  },
+  notifications: {
+    showMoveError: {
+      title: 'Failed',
+      message:
+        'Cannot move tasks while searching, you may update the tasks board in the task form',
+      type: 'error'
     }
   }
 }
