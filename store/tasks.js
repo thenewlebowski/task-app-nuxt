@@ -89,6 +89,7 @@ export const mutations = {
   ARCHIVE_TASK(state, task) {
     delete state.index[task._id]
     state.archived.push(task)
+    if (!task.board) return { status: 200 }
     this.dispatch('boards/archiveTask', task)
       .then((task) => {
         return task

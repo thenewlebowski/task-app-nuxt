@@ -90,6 +90,7 @@ import TaskForm from './TaskForm'
 import ArchiveTaskModal from './ArchiveTaskModal'
 
 export default {
+  name: 'TaskCard',
   components: {
     TaskForm,
     ArchiveTaskModal,

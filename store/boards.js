@@ -142,7 +142,7 @@ export const actions = {
   archiveTask({ commit }, data) {
     const payload = {
       task: data,
-      oldBoard: { _id: data.board }
+      oldBoard: { _id: data.board._id || data.board }
     }
     commit('REMOVE_TASK', payload)
     return data
