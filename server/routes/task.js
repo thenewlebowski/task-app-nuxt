@@ -84,22 +84,6 @@ router
       })
   })
 
-  /**
-   * @author coltonn
-   * @purpose gathers more information on a specific task
-   * given the _id
-   * @param _id {String} | required
-   * @returns single task
-   */
-  .get('/:id', (req, res, next) => {
-    const data = req.params.id
-    Task.findById(data, (err, task) => {
-      if (err || !task)
-        return err ? next(err) : res.status(404).json({ msg: 'No task found' })
-      return res.status(200).json(task)
-    })
-  })
-
   .get('/unassigned', (req, res) => {
     Task.find({
       $or: [
@@ -144,6 +128,23 @@ router
         res.status(500).json({ message: err.message })
       })
   })
+
+  /**
+   * @author coltonn
+   * @purpose gathers more information on a specific task
+   * given the _id
+   * @param _id {String} | required
+   * @returns single task
+   */
+  .get('/:id', (req, res, next) => {
+    const data = req.params.id
+    Task.findById(data, (err, task) => {
+      if (err || !task)
+        return err ? next(err) : res.status(404).json({ msg: 'No task found' })
+      return res.status(200).json(task)
+    })
+  })
+
   .post('/', async (req, res) => {
     const data = req.body
     const task = new Task(data)
