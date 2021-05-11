@@ -91,8 +91,8 @@ router
    * @param _id {String} | required
    * @returns single task
    */
-  .post('/', (req, res, next) => {
-    const data = req.body.id
+  .get('/:id', (req, res, next) => {
+    const data = req.params.id
     Task.findById(data, (err, task) => {
       if (err || !task)
         return err ? next(err) : res.status(404).json({ msg: 'No task found' })

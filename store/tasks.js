@@ -133,7 +133,7 @@ export const actions = {
    * @returns {Object} state.focus
    */
   fetchSpecific({ commit }, id) {
-    return this.$axios.post(`/api/tasks`, { id }).then((response) => {
+    return this.$axios.get(`/api/tasks/${id}`).then((response) => {
       commit('SET_FOCUS', response.data)
     })
   },
