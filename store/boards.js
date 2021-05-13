@@ -149,11 +149,12 @@ export const actions = {
   },
   updateBoard({ commit }, data) {
     if (!data.board) data.board = data._id
+    commit('UPDATE_BOARD', data)
+
     const payload = { update: data }
     return this.$axios
       .put('/api/boards/', payload)
       .then((res) => {
-        commit('UPDATE_BOARD', data)
         return res
       })
       .catch((err) => {
