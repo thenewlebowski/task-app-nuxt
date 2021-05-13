@@ -292,6 +292,10 @@ export default {
       this.dateCompleted = dateCompleted
         ? this.$moment(dateCompleted).format('YYYY-MM-DD')
         : null
+      this.status =
+        this.taskToEdit.board && this.taskToEdit.board.title
+          ? this.taskToEdit.board.title
+          : this.taskToEdit.status
       this.dateDue = dateDue ? this.$moment(dateDue).format('YYYY-MM-DD') : null
       this.assignee = this.nameKey[this.assignee]
     }
