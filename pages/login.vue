@@ -20,6 +20,7 @@
             :error-messages="usernameErrors"
             @input="$v.username.$touch()"
             @blur="$v.username.$touch()"
+            @keydown.enter="$refs.password.focus()"
             label="Username"
             required
             name="username"
@@ -28,10 +29,12 @@
           />
 
           <v-text-field
+            ref="password"
             v-model.trim="password"
             :error-messages="passwordErrors"
             @input="$v.password.$touch()"
             @blur="$v.password.$touch()"
+            @keydown.enter="login"
             label="Password"
             required
             name="password"
