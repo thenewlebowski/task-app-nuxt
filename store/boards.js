@@ -33,6 +33,7 @@ export const mutations = {
       _id: data.board
     }
     const temp = state.boards[data.board].tasks.map((t) => {
+      t.status = payload.title
       t.board = payload
       return t
     })

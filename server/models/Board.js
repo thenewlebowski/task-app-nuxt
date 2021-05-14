@@ -40,6 +40,7 @@ const BoardSchema = mongoose.Schema(
 BoardSchema.post('save', function() {
   const Task = require('./Task')
   const payload = {
+    status: this.title,
     board: {
       color: this.color,
       title: this.title,
