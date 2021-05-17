@@ -117,7 +117,17 @@ export const actions = {
   },
   updateTask({ commit }, data) {
     commit('REMOVE_TASK', data)
-    commit('ADD_TASK', data)
+
+    /**
+     * should only add the task to a board if that board is
+     * currently in view or else an error notification will
+     * be presented.
+     */
+    if (
+      data.task.assignee ===
+      (this.$router.app._route.params.user || this.$auth.user._id)
+    )
+      commit('ADD_TASK', data)
     return data
   },
   fetchReported({ commit }) {

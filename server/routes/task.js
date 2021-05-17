@@ -188,9 +188,25 @@ router
     Task.findById(taskId)
       .then((task) => {
         removeTask(task.board, task._id)
-          .then((oldBoard) => {
+          .then(async (oldBoard) => {
             for (const [key, value] of Object.entries(update)) {
               task[key] = value
+            }
+            let board = null
+            if (task.assignee) {
+              board = await Board.findOne({
+                title: task.status,
+                owner: task.assignee
+              })
+              if (!board) {
+                board = new Board()
+                board.owner = task.assignee
+                board.publicBoard = true
+                board.tasks = []
+                board.title = task.status
+                board = await board.save()
+              }
+              task.board = board._id
             }
             task.save().then((newTask) => {
               const loggedInUser = req.session.user._id

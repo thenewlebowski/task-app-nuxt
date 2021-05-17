@@ -169,9 +169,9 @@ export const actions = {
       const data = response.data
       data.task.route = route
       commit('UPDATE_TASK', data.task)
-      if (data.task.board.toString() !== data.oldBoard._id.toString()) {
-        this.dispatch('boards/updateTask', response.data)
-      }
+      // if (data.task.board.toString() !== data.oldBoard._id.toString()) {
+      this.dispatch('boards/updateTask', response.data)
+      // }
       return response
     })
   },
