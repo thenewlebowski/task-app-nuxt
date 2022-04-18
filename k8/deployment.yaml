@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gogrello
+  namespace: cryptnode-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gogrello
+  template:
+    metadata:
+      labels:
+        app: gogrello
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: gogrello
+          image: registry.cryptnode.tech/devowski/gogrello
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
